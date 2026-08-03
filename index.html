@@ -255,8 +255,8 @@
 
         <div class="text-center mt-3">
           <div class="text-muted small my-2">- ATAU -</div>
-          <button onclick="loginAsGuest()" class="btn btn-outline-secondary w-100 rounded-pill py-2.5 fw-bold btn-sm">
-            <i class="fa-solid fa-user-clock me-1"></i> Log Masuk Sebagai Tetamu (Mod Luar Talian)
+          <button onclick="loginLocally('tetamu@socialstory.local')" class="btn btn-outline-secondary w-100 rounded-pill py-2.5 fw-bold btn-sm">
+            <i class="fa-solid fa-user-check me-1"></i> Terus Masuk (Mod Tempatan)
           </button>
         </div>
       </div>
@@ -728,28 +728,28 @@
       editModalInstance = new bootstrap.Modal(document.getElementById('editSentenceModal'));
       loadLocalStories();
 
+      // Check Local Session First
+      const savedUser = localStorage.getItem('user_session');
+      if (savedUser) {
+        try {
+          currentUser = JSON.parse(savedUser);
+          updateAuthUI();
+          showView('home');
+        } catch(e) {
+          currentUser = null;
+        }
+      }
+
       // Firebase Auth State Listener
       auth.onAuthStateChanged(user => {
         if (user) {
-          currentUser = user;
-          localStorage.removeItem('guest_session');
+          currentUser = { uid: user.uid, email: user.email, isLocal: false };
+          localStorage.setItem('user_session', JSON.stringify(currentUser));
           updateAuthUI();
           syncStoriesFromFirebase();
           showView('home');
         } else {
-          const guestSession = localStorage.getItem('guest_session');
-          if (guestSession) {
-            try {
-              currentUser = JSON.parse(guestSession);
-              updateAuthUI();
-              showView('home');
-            } catch(e) {
-              currentUser = null;
-              updateAuthUI();
-              showView('login');
-            }
-          } else {
-            currentUser = null;
+          if (!currentUser) {
             updateAuthUI();
             showView('login');
           }
@@ -757,7 +757,7 @@
       });
     });
 
-    // 2. AUTHENTICATION & LOGIN SCREEN LOGIC
+    // 2. AUTHENTICATION LOGIC (HYBRID FIREBASE + LOCAL FALLBACK)
     function switchAuthTab(mode) {
       authMode = mode;
       const btnLogin = document.getElementById('tab-btn-login');
@@ -786,18 +786,16 @@
     function translateAuthError(code, message) {
       switch(code) {
         case 'auth/user-not-found':
-          return 'Akaun emel ini belum berdaftar. Sila tekan tab "Daftar Akaun" di atas.';
+          return 'Akaun emel ini belum berdaftar. Sila tekan "Daftar Akaun" di atas.';
         case 'auth/wrong-password':
-          return 'Kata laluan tidak tepat. Sila cuba lagi atau tekan "Lupa Kata Laluan?".';
+        case 'auth/invalid-credential':
+          return 'Emel atau kata laluan tidak tepat. Sila cuba lagi.';
         case 'auth/invalid-email':
           return 'Format emel tidak sah.';
         case 'auth/email-already-in-use':
-          return 'Emel ini sudah berdaftar. Sila tekan tab "Log Masuk".';
+          return 'Emel ini telah digunakan. Sila tekan "Log Masuk".';
         case 'auth/weak-password':
-          return 'Kata laluan terlalu lemah. Sila guna sekurang-kurangnya 6 aksara.';
-        case 'auth/unauthorized-domain':
-        case 'auth/operation-not-allowed':
-          return 'Tetapan Firebase Auth belum diaktifkan. Anda boleh menekan "Log Masuk Sebagai Tetamu" di bawah.';
+          return 'Kata laluan mestilah sekurang-kurangnya 6 aksara.';
         default:
           return 'Ralat: ' + message;
       }
@@ -813,14 +811,33 @@
 
       alertDiv.classList.add('d-none');
       successDiv.classList.add('d-none');
+
+      if (!email || !pass) {
+        alertDiv.classList.remove('d-none');
+        alertDiv.innerText = 'Sila isi e-mel dan kata laluan.';
+        return;
+      }
+
       submitBtn.disabled = true;
 
       if (authMode === 'login') {
         submitBtn.innerText = 'Log Masuk...';
         auth.signInWithEmailAndPassword(email, pass)
+          .then((userCredential) => {
+            currentUser = { uid: userCredential.user.uid, email: userCredential.user.email, isLocal: false };
+            localStorage.setItem('user_session', JSON.stringify(currentUser));
+            updateAuthUI();
+            showView('home');
+          })
           .catch(err => {
-            alertDiv.classList.remove('d-none');
-            alertDiv.innerText = translateAuthError(err.code, err.message);
+            console.warn("Firebase Auth Error:", err);
+            // Fallback to local session if network or Firebase domain restriction blocks login
+            if (err.code === 'auth/unauthorized-domain' || err.code === 'auth/network-request-failed' || err.code === 'auth/operation-not-allowed') {
+              loginLocally(email);
+            } else {
+              alertDiv.classList.remove('d-none');
+              alertDiv.innerHTML = translateAuthError(err.code, err.message);
+            }
           })
           .finally(() => {
             submitBtn.disabled = false;
@@ -829,13 +846,24 @@
       } else {
         submitBtn.innerText = 'Mendaftar Akaun...';
         auth.createUserWithEmailAndPassword(email, pass)
-          .then(() => {
+          .then((userCredential) => {
+            currentUser = { uid: userCredential.user.uid, email: userCredential.user.email, isLocal: false };
+            localStorage.setItem('user_session', JSON.stringify(currentUser));
             successDiv.classList.remove('d-none');
-            successDiv.innerText = 'Akaun berjaya dicipta! Anda kini log masuk.';
+            successDiv.innerText = 'Akaun berjaya dicipta!';
+            setTimeout(() => {
+              updateAuthUI();
+              showView('home');
+            }, 800);
           })
           .catch(err => {
-            alertDiv.classList.remove('d-none');
-            alertDiv.innerText = translateAuthError(err.code, err.message);
+            console.warn("Firebase Register Error:", err);
+            if (err.code === 'auth/unauthorized-domain' || err.code === 'auth/network-request-failed' || err.code === 'auth/operation-not-allowed') {
+              loginLocally(email);
+            } else {
+              alertDiv.classList.remove('d-none');
+              alertDiv.innerText = translateAuthError(err.code, err.message);
+            }
           })
           .finally(() => {
             submitBtn.disabled = false;
@@ -853,32 +881,29 @@
 
       auth.sendPasswordResetEmail(email)
         .then(() => {
-          alert('Pautan set semula kata laluan telah dihantar ke emel ' + email + '. Sila semak peti masuk (inbox/spam) emel anda.');
+          alert('Pautan set semula kata laluan telah dihantar ke emel ' + email + '. Sila semak peti masuk emel anda.');
         })
         .catch(err => {
           alert('Ralat semasa menghantar emel: ' + translateAuthError(err.code, err.message));
         });
     }
 
-    function loginAsGuest() {
+    function loginLocally(email) {
       currentUser = {
-        uid: 'guest_' + Date.now(),
-        email: 'tetamu@guest.local',
-        isGuest: true
+        uid: 'user_' + Date.now(),
+        email: email || 'pengguna@socialstory.local',
+        isLocal: true
       };
-      localStorage.setItem('guest_session', JSON.stringify(currentUser));
+      localStorage.setItem('user_session', JSON.stringify(currentUser));
       updateAuthUI();
       showView('home');
     }
 
     function logoutUser() {
       if (confirm("Adakah anda pasti mahu log keluar?")) {
-        localStorage.removeItem('guest_session');
+        localStorage.removeItem('user_session');
         currentUser = null;
-        auth.signOut().then(() => {
-          updateAuthUI();
-          showView('login');
-        }).catch(() => {
+        auth.signOut().finally(() => {
           updateAuthUI();
           showView('login');
         });
@@ -901,7 +926,7 @@
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <div class="fw-bold text-dark">${currentUser.email}</div>
-              <small class="text-success"><i class="fa-solid fa-cloud-check me-1"></i>${currentUser.isGuest ? 'Akaun Tetamu (Lokal)' : 'Terselaras dengan Firebase Cloud'}</small>
+              <small class="text-success"><i class="fa-solid fa-cloud-check me-1"></i>${currentUser.isLocal ? 'Akaun Tempatan (Sesi Aktif)' : 'Terselaras dengan Firebase Cloud'}</small>
             </div>
             <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="logoutUser()">Log Keluar</button>
           </div>
@@ -1276,7 +1301,7 @@
 
       localStorage.setItem('my_social_stories', JSON.stringify(myStories));
 
-      if (currentUser && !currentUser.isGuest) {
+      if (currentUser && !currentUser.isLocal) {
         db.ref(`users/${currentUser.uid}/stories/${story.id}`).set(story);
       }
     }
@@ -1289,7 +1314,7 @@
     }
 
     function syncStoriesFromFirebase() {
-      if (currentUser && !currentUser.isGuest) {
+      if (currentUser && !currentUser.isLocal) {
         db.ref(`users/${currentUser.uid}/stories`).once('value', snapshot => {
           const val = snapshot.val();
           if (val) {
@@ -1396,7 +1421,7 @@
         myStories = myStories.filter(s => s.id !== storyId);
         localStorage.setItem('my_social_stories', JSON.stringify(myStories));
 
-        if (currentUser && !currentUser.isGuest) {
+        if (currentUser && !currentUser.isLocal) {
           db.ref(`users/${currentUser.uid}/stories/${storyId}`).remove();
         }
 
