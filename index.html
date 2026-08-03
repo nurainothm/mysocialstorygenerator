@@ -290,9 +290,9 @@
         </div>
         <div class="col-6 col-md-3">
           <div class="custom-card p-3 text-center">
-            <i class="fa-solid fa-volume-high fs-3 text-warning mb-2"></i>
-            <h6 class="fw-bold mb-0">Suara Melayu</h6>
-            <small class="text-muted">Sebutan BM Asli</small>
+            <i class="fa-solid fa-venus fs-3 text-warning mb-2"></i>
+            <h6 class="fw-bold mb-0">Suara Wanita</h6>
+            <small class="text-muted">Sebutan BM Lembut</small>
           </div>
         </div>
         <div class="col-6 col-md-3">
@@ -464,7 +464,7 @@
               <i class="fa-regular fa-heart me-1"></i> Simpan Kegemaran
             </button>
             <button onclick="readFullStoryTTS()" class="btn btn-warning btn-sm rounded-pill fw-bold">
-              🔊 Baca Cerita (BM)
+              🔊 Baca Cerita (Suara Wanita BM)
             </button>
             <button onclick="window.print()" class="btn btn-outline-primary btn-sm rounded-pill">
               📄 PDF / 🖨 Cetak
@@ -1187,7 +1187,7 @@
               <div id="sentence_view_box_${idx}" class="d-flex justify-content-between align-items-center">
                 <span class="fs-5 fw-bold text-dark me-2" id="text_display_${idx}">${s.text}</span>
                 <div class="d-flex gap-1 no-print">
-                  <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="speakSentenceText('${s.text.replace(/'/g, "\\'")}')" title="Sebut Ayat Dalam BM">
+                  <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="speakSentenceText('${s.text.replace(/'/g, "\\'")}')" title="Sebut Suara Wanita BM">
                     <i class="fa-solid fa-volume-high"></i>
                   </button>
                   <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="toggleInlineEdit(${idx})" title="Sunting Ayat Ini">
@@ -1303,28 +1303,31 @@
       }
     }
 
-    // 7. TEXT-TO-SPEECH (TTS) AUDIO (HILANGKAN ACCENT INGGERIS - POKOK BAHASA MELAYU/INDONESIA)
-    function getMalayVoice() {
+    // 7. TEXT-TO-SPEECH (TTS) AUDIO - KHAS SUARA PEREMPUAN / WANITA BAHASA MELAYU
+    function getMalayFemaleVoice() {
       if (availableVoices.length === 0) {
         availableVoices = window.speechSynthesis.getVoices();
       }
 
-      // 1. Keutamaan Pertama: Suara Bahasa Melayu Asli (ms-MY / Malay)
-      let v = availableVoices.find(voice => 
-        voice.lang.toLowerCase().includes('ms') || 
-        voice.lang.toLowerCase().includes('melayu') ||
-        voice.name.toLowerCase().includes('malay')
+      // Senarai kata kunci suara perempuan Melayu/Indonesia biasa
+      const femaleKeywords = ['siti', 'yasmin', 'zira', 'gadis', 'wanita', 'female', 'perempuan', 'google bahasa', 'indonesi', 'malay'];
+
+      // Filter suara Bahasa Melayu (ms-MY) atau Bahasa Indonesia (id-ID)
+      const regionalVoices = availableVoices.filter(v => 
+        v.lang.toLowerCase().includes('ms') || 
+        v.lang.toLowerCase().includes('id') || 
+        v.name.toLowerCase().includes('malay') ||
+        v.name.toLowerCase().includes('indonesia')
       );
 
-      // 2. Keutamaan Kedua: Suara Bahasa Indonesia (id-ID) untuk mengelakkan sebutan beraccent Inggeris
-      if (!v) {
-        v = availableVoices.find(voice => 
-          voice.lang.toLowerCase().includes('id') || 
-          voice.name.toLowerCase().includes('indonesia')
-        );
-      }
+      // Cari suara yang sepadan dengan nama perempuan
+      let femaleVoice = regionalVoices.find(v => {
+        const nameLower = v.name.toLowerCase();
+        return femaleKeywords.some(kw => nameLower.includes(kw));
+      });
 
-      return v;
+      // Cadangan pengganti sekiranya tiada carian spesifik
+      return femaleVoice || regionalVoices[0] || null;
     }
 
     function speakSentenceText(text) {
@@ -1340,16 +1343,15 @@
       if (isEn) {
         utterance.lang = 'en-US';
       } else {
-        // Tetapkan kod bahasa baku
         utterance.lang = 'ms-MY';
-        const msVoice = getMalayVoice();
-        if (msVoice) {
-          utterance.voice = msVoice;
+        const femaleVoice = getMalayFemaleVoice();
+        if (femaleVoice) {
+          utterance.voice = femaleVoice;
         }
       }
 
-      utterance.rate = 0.85; // Kelajuan perlahan khas untuk pendidikan khas
-      utterance.pitch = 1.0;
+      utterance.rate = 0.85; // Kelajuan perlahan mesra Pendidikan Khas
+      utterance.pitch = 1.1;  // Nadapitch dipertingkatkan sedikit untuk memberikan tona suara wanita yang lembut
       window.speechSynthesis.speak(utterance);
     }
 
