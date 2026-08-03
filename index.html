@@ -539,7 +539,7 @@
         <div class="fw-bold text-success fs-5 d-none" id="token-congrats">⭐⭐⭐⭐⭐ Tahniah! Syabas Atas Usaha Baik Ini!</div>
       </div>
 
-      <!-- AI BEHAVIOUR TIPS -->
+      <!-- AI BEHAVIOUR TIPS (ACCORDION DIPERBAIKI PENUH) -->
       <div class="custom-card p-4 mb-4 no-print border-start border-5 border-success">
         <h5 class="fw-bold text-success mb-3"><i class="fa-solid fa-lightbulb me-2"></i>Panduan Bimbingan Tingkah Laku Khas (Pakar ASD)</h5>
         
@@ -1101,7 +1101,7 @@
             `My name is ${nama} and I am ${umur} old.`,
             `Sometimes, I need to go for ${situasi.toLowerCase()}.`,
             `When doing ${situasi.toLowerCase()}, it might be loud or busy.`,
-            `My parents and teachers are here to help me stay safe.`,
+            `My parents and teachers are here to help me safe.`,
             `It is okay if I feel ${emosi.toLowerCase()}. Everyone feels this way sometimes.`,
             `I can take 3 deep breaths to calm my body.`,
             `I will practice to ${nilai.toLowerCase()} and follow instructions.`,
@@ -1141,24 +1141,28 @@
 
     // PAKAR BAHASA MELAYU TERAPI PERTURUTAN & PENDIDIKAN KHAS MALAYSIA
     function getBehaviorTips(nama, situasi, nilai, tahap, isBm) {
+      const childName = nama || 'anak';
+      const situationName = situasi ? situasi.toLowerCase() : 'situasi harian';
+      const valueName = nilai ? nilai.toLowerCase() : 'sabar';
+
       if (isBm) {
         return {
-          intro: `Sediakan persekitaran yang tenang dan bebas daripada gangguan gajet atau bunyi bising. Bacakan cerita ini bersama ${nama} semasa beliau dalam keadaan selesa dan tenang. Elakkan memaksa atau membaca cerita ini ketika anak sedang gelisah atau mengamuk. Duduk di sebelah ${nama} dan tunjukkan setiap gambar ilustrasi satu demi satu secara perlahan.`,
-          timing: `Bacakan cerita ini sebanyak 2 hingga 3 kali sehari (waktu terbaik ialah sejurus selepas bangun pagi dan sebelum tidur malam). Amalkan pembacaan berterusan selama 3 hingga 5 hari berturut-turut sebelum aktiviti ${situasi.toLowerCase()} dijalankan. Pengulangan yang konsisten amat penting untuk membina ingatan sosial dan kefahaman rutin anak.`,
-          followUp: `Sebaik sahaja selesai membaca, tunjukkan Papan "Pertama - Kemudian" dan Papan Bintang Ganjaran. Berikan pujian spesifik seperti: "Bagus ${nama} sebab dapat duduk tenang dan mendengar cerita!" Lakonkan semula situasi ${situasi.toLowerCase()} menggunakan mainan atau patung jika perlu.`,
-          parentTeacher: `Bagi ibu bapa dan guru: Bimbing anak memberikan fokus kepada amalan '${nilai.toLowerCase()}'. Semasa situasi ${situasi.toLowerCase()} sebenar berlaku, ingatkan ${nama} secara lembut menggunakan kata kunci ringkas daripada cerita (contohnya: "${nama}, ingat cerita kita? Mari kita ${nilai.toLowerCase()}"). Berikan pujian lisan atau bintang ganjaran serta-merta apabila anak menunjukkan tingkah laku yang ditekankan.`
+          intro: `Sediakan persekitaran yang tenang dan bebas daripada gangguan gajet atau bunyi bising. Bacakan cerita ini bersama ${childName} semasa beliau dalam keadaan selesa dan tenang. Elakkan memaksa atau membaca cerita ini ketika anak sedang gelisah atau mengamuk. Duduk di sebelah ${childName} dan tunjukkan setiap gambar ilustrasi satu demi satu secara perlahan.`,
+          timing: `Bacakan cerita ini sebanyak 2 hingga 3 kali sehari (waktu terbaik ialah sejurus selepas bangun pagi dan sebelum tidur malam). Amalkan pembacaan berterusan selama 3 hingga 5 hari berturut-turut sebelum aktiviti ${situationName} dijalankan. Pengulangan yang konsisten amat penting untuk membina ingatan sosial dan kefahaman rutin anak.`,
+          followUp: `Sebaik sahaja selesai membaca, tunjukkan Papan "Pertama - Kemudian" dan Papan Bintang Ganjaran. Berikan pujian spesifik seperti: "Bagus ${childName} sebab dapat duduk tenang dan mendengar cerita!" Lakonkan semula situasi ${situationName} menggunakan mainan atau patung jika perlu.`,
+          parentTeacher: `Bagi ibu bapa dan guru: Bimbing anak memberikan fokus kepada amalan '${valueName}'. Semasa situasi ${situationName} sebenar berlaku, ingatkan ${childName} secara lembut menggunakan kata kunci ringkas daripada cerita (contohnya: "${childName}, ingat cerita kita? Mari kita ${valueName}"). Berikan pujian lisan atau bintang ganjaran serta-merta apabila anak menunjukkan tingkah laku yang ditekankan.`
         };
       } else {
         return {
-          intro: `Set up a quiet environment free from digital distractions. Read this story with ${nama} when they are relaxed and comfortable. Avoid reading during a meltdown or when the child is overwhelmed. Sit alongside ${nama} and point to each visual illustration as you go through the pages.`,
-          timing: `Read this story 2 to 3 times daily (ideally after waking up and before bedtime) for 3 to 5 consecutive days prior to the actual ${situasi.toLowerCase()} event. Consistent repetition helps build social memory and routine predictability for the child.`,
-          followUp: `Right after reading, refer to the included "First - Then" board and Token Reward system. Offer specific praise, such as: "Great job listening so calmly, ${nama}!" Role-play the ${situasi.toLowerCase()} scenario using toys if appropriate.`,
-          parentTeacher: `For parents and teachers: Focus on reinforcing '${nilai.toLowerCase()}'. During the actual ${situasi.toLowerCase()} situation, gently prompt ${nama} using simple keywords from the story (e.g., "${nama}, remember our story? Let's try to ${nilai.toLowerCase()}"). Give immediate praise or rewards when target behaviors are displayed.`
+          intro: `Set up a quiet environment free from digital distractions. Read this story with ${childName} when they are relaxed and comfortable. Avoid reading during a meltdown or when the child is overwhelmed. Sit alongside ${childName} and point to each visual illustration as you go through the pages.`,
+          timing: `Read this story 2 to 3 times daily (ideally after waking up and before bedtime) for 3 to 5 consecutive days prior to the actual ${situationName} event. Consistent repetition helps build social memory and routine predictability for the child.`,
+          followUp: `Right after reading, refer to the included "First - Then" board and Token Reward system. Offer specific praise, such as: "Great job listening so calmly, ${childName}!" Role-play the ${situationName} scenario using toys if appropriate.`,
+          parentTeacher: `For parents and teachers: Focus on reinforcing '${valueName}'. During the actual ${situationName} situation, gently prompt ${childName} using simple keywords from the story (e.g., "${childName}, remember our story? Let's try to ${valueName}"). Give immediate praise or rewards when target behaviors are displayed.`
         };
       }
     }
 
-    // 5. RENDER STORY RESULT TO UI (INLINE SUNTINGAN TERUS PADA KAD)
+    // 5. RENDER STORY RESULT TO UI (SEMAKAN DIPERBAIKI PADA TIAP ACCORDION TIPS)
     function renderStoryResult(story) {
       currentActiveStory = story;
 
@@ -1226,7 +1230,11 @@
         schedContainer.insertAdjacentHTML('beforeend', `<div class="schedule-chip"><i class="fa-solid fa-circle-check"></i>${step}</div>`);
       });
 
-      // AI TIPS RENDER
+      // PENGESANAN AUTO-FALLBACK TIPS (MEMATIKAN BAHAGIAN KOSONG / MISSING KEYS)
+      if (!story.tips || !story.tips.intro || !story.tips.timing || !story.tips.followUp || !story.tips.parentTeacher) {
+        story.tips = getBehaviorTips(story.nama, story.situasi, story.nilai, story.tahap, story.bahasa === 'BM');
+      }
+
       document.getElementById('tip-intro').innerText = story.tips.intro;
       document.getElementById('tip-timing').innerText = story.tips.timing;
       document.getElementById('tip-followup').innerText = story.tips.followUp;
@@ -1309,10 +1317,8 @@
         availableVoices = window.speechSynthesis.getVoices();
       }
 
-      // Senarai kata kunci suara perempuan Melayu/Indonesia biasa
       const femaleKeywords = ['siti', 'yasmin', 'zira', 'gadis', 'wanita', 'female', 'perempuan', 'google bahasa', 'indonesi', 'malay'];
 
-      // Filter suara Bahasa Melayu (ms-MY) atau Bahasa Indonesia (id-ID)
       const regionalVoices = availableVoices.filter(v => 
         v.lang.toLowerCase().includes('ms') || 
         v.lang.toLowerCase().includes('id') || 
@@ -1320,13 +1326,11 @@
         v.name.toLowerCase().includes('indonesia')
       );
 
-      // Cari suara yang sepadan dengan nama perempuan
       let femaleVoice = regionalVoices.find(v => {
         const nameLower = v.name.toLowerCase();
         return femaleKeywords.some(kw => nameLower.includes(kw));
       });
 
-      // Cadangan pengganti sekiranya tiada carian spesifik
       return femaleVoice || regionalVoices[0] || null;
     }
 
@@ -1350,8 +1354,8 @@
         }
       }
 
-      utterance.rate = 0.85; // Kelajuan perlahan mesra Pendidikan Khas
-      utterance.pitch = 1.1;  // Nadapitch dipertingkatkan sedikit untuk memberikan tona suara wanita yang lembut
+      utterance.rate = 0.85;
+      utterance.pitch = 1.1;
       window.speechSynthesis.speak(utterance);
     }
 
