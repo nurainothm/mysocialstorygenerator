@@ -126,7 +126,7 @@
       background-color: var(--light-blue);
     }
 
-    /* REKABENTUK KAD GAMBAR AUTO-FIT */
+    /* KAD & FRAME GAMBAR AUTO-FIT */
     .sentence-card {
       background-color: var(--card-bg);
       border: 2px solid var(--border-color);
@@ -1336,7 +1336,11 @@
       localStorage.setItem('my_social_stories', JSON.stringify(myStories));
 
       if (currentUser && !currentUser.isLocal) {
-        db.ref(`users/${currentUser.uid}/stories/${story.id}`).set(story);
+        try {
+          db.ref(`users/${currentUser.uid}/stories/${story.id}`).set(story);
+        } catch(e) {
+          console.warn("Firebase save warning:", e);
+        }
       }
     }
 
@@ -1349,14 +1353,20 @@
 
     function syncStoriesFromFirebase() {
       if (currentUser && !currentUser.isLocal) {
-        db.ref(`users/${currentUser.uid}/stories`).once('value', snapshot => {
-          const val = snapshot.val();
-          if (val) {
-            myStories = Object.values(val);
-            localStorage.setItem('my_social_stories', JSON.stringify(myStories));
-            renderHomeRecentStories();
-          }
-        });
+        try {
+          db.ref(`users/${currentUser.uid}/stories`).once('value', snapshot => {
+            const val = snapshot.val();
+            if (val) {
+              myStories = Object.values(val);
+              localStorage.setItem('my_social_stories', JSON.stringify(myStories));
+              renderHomeRecentStories();
+              renderMyStories();
+              renderFavourites();
+            }
+          });
+        } catch(e) {
+          console.warn("Firebase sync warning:", e);
+        }
       }
     }
 
@@ -1376,7 +1386,7 @@
       }
     }
 
-    // 10. RENDER MY STORIES & FAVOURITES
+    // 10. RENDER MY STORIES & FAVOURITES (DENGAN PEMBAIKAN BUTANG PADAM)
     function renderHomeRecentStories() {
       const container = document.getElementById('home-recent-stories');
       container.innerHTML = '';
@@ -1434,7 +1444,7 @@
               <button class="btn btn-primary btn-sm rounded-circle" onclick="loadAndDisplayStory('${story.id}')" title="Buka">
                 <i class="fa-solid fa-eye"></i>
               </button>
-              <button class="btn btn-outline-danger btn-sm rounded-circle" onclick="deleteStoryFromStorage('${story.id}')" title="Padam">
+              <button class="btn btn-outline-danger btn-sm rounded-circle" onclick="event.stopPropagation(); deleteStoryFromStorage('${story.id}')" title="Padam">
                 <i class="fa-solid fa-trash"></i>
               </button>
             </div>
@@ -1456,11 +1466,20 @@
         localStorage.setItem('my_social_stories', JSON.stringify(myStories));
 
         if (currentUser && !currentUser.isLocal) {
-          db.ref(`users/${currentUser.uid}/stories/${storyId}`).remove();
+          try {
+            db.ref(`users/${currentUser.uid}/stories/${storyId}`).remove();
+          } catch(e) {
+            console.warn("Firebase remove warning:", e);
+          }
         }
 
-        renderMyStories();
         renderHomeRecentStories();
+        renderMyStories();
+        renderFavourites();
+
+        if (currentActiveStory && currentActiveStory.id === storyId) {
+          showView('home');
+        }
       }
     }
 
@@ -1479,7 +1498,7 @@
       });
     }
 
-    // 11. SHARING & EXPORTING
+    // 11. SHARING & EXPORTING (DENGAN PEMBAIKAN BUTANG E-MEL)
     function shareWhatsApp() {
       if (currentActiveStory) {
         const text = `*Cerita Sosial ASD: ${currentActiveStory.nama}*\nSituasi: ${currentActiveStory.situasi}\n\n` + 
@@ -1492,8 +1511,19 @@
     function shareEmail() {
       if (currentActiveStory) {
         const subject = `Cerita Sosial ASD - ${currentActiveStory.nama} (${currentActiveStory.situasi})`;
-        const body = currentActiveStory.sentences.map((s, idx) => `${idx + 1}. ${s.text}`).join('\n\n');
-        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        const bodyText = `Cerita Sosial: ${currentActiveStory.nama}\r\nSituasi: ${currentActiveStory.situasi}\r\n\r\n` + 
+          currentActiveStory.sentences.map((s, idx) => `${idx + 1}. ${s.text}`).join('\r\n\r\n') +
+          `\r\n\r\nDihasilkan melalui My Social Story Generator.`;
+        
+        const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+        
+        // Panggilan Dinamik Anchor Link (Sangat Stabil di Telefon & Komputer)
+        const link = document.createElement('a');
+        link.href = mailtoUrl;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       }
     }
 
