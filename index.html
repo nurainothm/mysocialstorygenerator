@@ -256,7 +256,7 @@
         <div class="text-center mt-3">
           <div class="text-muted small my-2">- ATAU -</div>
           <button onclick="loginLocally('tetamu@socialstory.local')" class="btn btn-outline-secondary w-100 rounded-pill py-2.5 fw-bold btn-sm">
-            <i class="fa-solid fa-user-check me-1"></i> Terus Masuk (Mod Tempatan)
+            <i class="fa-solid fa-bolt me-1 text-warning"></i> Masuk Serta-merta (Mod Tempatan)
           </button>
         </div>
       </div>
@@ -702,7 +702,7 @@
 
   <!-- SCRIPT LOGIK APLIKASI -->
   <script>
-    // 1. FIREBASE CONFIGURATION
+    // 1. FIREBASE CONFIGURATION (KEMASKINI DENGAN APP ID BAHARU)
     const firebaseConfig = {
       apiKey: "AIzaSyDBQMTyc23M16ihIpQTOZbUhXzpFlTv7OI",
       authDomain: "social-story-generator-b807a.firebaseapp.com",
@@ -710,7 +710,7 @@
       projectId: "social-story-generator-b807a",
       storageBucket: "social-story-generator-b807a.firebasestorage.app",
       messagingSenderId: "361478724767",
-      appId: "1:361478724767:web:5b0da6bbc16b70a85896aa"
+      appId: "1:361478724767:web:c1f911b03f84efd75896aa"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -796,8 +796,12 @@
           return 'Emel ini telah digunakan. Sila tekan "Log Masuk".';
         case 'auth/weak-password':
           return 'Kata laluan mestilah sekurang-kurangnya 6 aksara.';
+        case 'auth/operation-not-allowed':
+          return 'Ciri Email/Password belum diaktifkan dalam Firebase Console -> Authentication -> Sign-in method. <br><button onclick="loginLocally(\'pengguna@local.com\')" class="btn btn-sm btn-dark mt-2 rounded-pill">Klik Sini Untuk Masuk Serta-Merta</button>';
+        case 'auth/unauthorized-domain':
+          return 'Domain ini belum didaftarkan di Firebase Console. <br><button onclick="loginLocally(\'pengguna@local.com\')" class="btn btn-sm btn-dark mt-2 rounded-pill">Klik Sini Untuk Masuk Serta-Merta</button>';
         default:
-          return 'Ralat: ' + message;
+          return 'Ralat Firebase: ' + message + ' <br><button onclick="loginLocally(\'pengguna@local.com\')" class="btn btn-sm btn-outline-danger mt-2 rounded-pill">Guna Mod Tempatan</button>';
       }
     }
 
@@ -831,7 +835,7 @@
           })
           .catch(err => {
             console.warn("Firebase Auth Error:", err);
-            // Fallback to local session if network or Firebase domain restriction blocks login
+            // Hybrid auto-fallback if network or domain prevents firebase login
             if (err.code === 'auth/unauthorized-domain' || err.code === 'auth/network-request-failed' || err.code === 'auth/operation-not-allowed') {
               loginLocally(email);
             } else {
@@ -862,7 +866,7 @@
               loginLocally(email);
             } else {
               alertDiv.classList.remove('d-none');
-              alertDiv.innerText = translateAuthError(err.code, err.message);
+              alertDiv.innerHTML = translateAuthError(err.code, err.message);
             }
           })
           .finally(() => {
