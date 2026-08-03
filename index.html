@@ -221,7 +221,7 @@
         <div class="text-center mb-4">
           <span class="fs-1">📖</span>
           <h3 class="fw-bold text-primary mt-2">My Social Story</h3>
-          <p class="text-muted small">Sila log masuk atau daftar untuk mula menghasilkan Cerita Sosial.</p>
+          <p class="text-muted small">Sila log masuk atau daftar akaun untuk mula menghasilkan Cerita Sosial.</p>
         </div>
 
         <!-- TAB TOGGLE LOG MASUK / DAFTAR -->
@@ -232,7 +232,7 @@
 
         <form id="form-auth-screen" onsubmit="handleAuthFormSubmit(event)">
           <div class="mb-3">
-            <label class="form-label fw-bold">Alamat Emel</label>
+            <label class="form-label fw-bold">Alamat E-mel</label>
             <input type="email" id="auth-email" class="form-control rounded-3 p-2.5" required placeholder="ibubapa@example.com">
           </div>
           <div class="mb-3">
@@ -278,7 +278,7 @@
           <div class="custom-card p-3 text-center">
             <i class="fa-solid fa-robot fs-3 text-primary mb-2"></i>
             <h6 class="fw-bold mb-0">Ilustrasi AI</h6>
-            <small class="text-muted">Jana Gambar Otomatik</small>
+            <small class="text-muted">Gambar Otomatik</small>
           </div>
         </div>
         <div class="col-6 col-md-3">
@@ -291,15 +291,15 @@
         <div class="col-6 col-md-3">
           <div class="custom-card p-3 text-center">
             <i class="fa-solid fa-volume-high fs-3 text-warning mb-2"></i>
-            <h6 class="fw-bold mb-0">Suara TTS</h6>
-            <small class="text-muted">Bahasa Melayu & EN</small>
+            <h6 class="fw-bold mb-0">Suara Sebutan</h6>
+            <small class="text-muted">BM & English</small>
           </div>
         </div>
         <div class="col-6 col-md-3">
           <div class="custom-card p-3 text-center">
             <i class="fa-solid fa-calendar-check fs-3 text-info mb-2"></i>
             <h6 class="fw-bold mb-0">Jadual Visual</h6>
-            <small class="text-muted">First-Then Board</small>
+            <small class="text-muted">Carta Langkah</small>
           </div>
         </div>
       </div>
@@ -354,18 +354,18 @@
 
             <!-- Tahap Bahasa -->
             <div class="col-md-6">
-              <label class="form-label fw-bold">Tahap Bahasa Anak</label>
+              <label class="form-label fw-bold">Tahap Kemahiran Bahasa Anak</label>
               <select id="input-tahap" class="form-select rounded-3 p-2.5">
-                <option value="Non-Verbal">Non-Verbal (Sangat Ringkas, 4 Ayat)</option>
+                <option value="Non-Verbal">Tanpa Pertuturan / Visual (4 Ayat Ringkas)</option>
                 <option value="1-2 Patah Perkataan">1 - 2 Patah Perkataan (5 Ayat Pendek)</option>
                 <option value="3-4 Patah Perkataan" selected>3 - 4 Patah Perkataan (7 Ayat Sederhana)</option>
-                <option value="5+ Patah Perkataan">5 atau lebih Patah Perkataan (8-10 Ayat Penuh)</option>
+                <option value="5+ Patah Perkataan">5 Perkataan Atau Lebih (8-10 Ayat Lengkap)</option>
               </select>
             </div>
 
             <!-- Pilih Situasi Preset -->
             <div class="col-md-6">
-              <label class="form-label fw-bold">Pilih Situasi</label>
+              <label class="form-label fw-bold">Pilih Situasi Sosial</label>
               <select id="input-situasi-select" class="form-select rounded-3 p-2.5" onchange="toggleCustomSituation(this.value)">
                 <option value="Pergi ke sekolah">Pergi ke sekolah</option>
                 <option value="Pergi klinik">Pergi klinik</option>
@@ -398,19 +398,19 @@
                 <option value="Memakai kasut">Memakai kasut</option>
                 <option value="Memakai pakaian sekolah">Memakai pakaian sekolah</option>
                 <option value="Memakai pelitup muka">Memakai pelitup muka</option>
-                <option value="CUSTOM">-- Situasi Sendiri --</option>
+                <option value="CUSTOM">-- Taip Situasi Sendiri --</option>
               </select>
             </div>
 
             <!-- Situasi Sendiri Input -->
             <div class="col-12 d-none" id="custom-situation-container">
-              <label class="form-label fw-bold">Taip Situasi Sendiri</label>
-              <input type="text" id="input-situasi-custom" class="form-control rounded-3 p-2.5" placeholder="Contoh: Naik kereta api ke rumah Nenek">
+              <label class="form-label fw-bold">Nyatakan Situasi Khusus</label>
+              <input type="text" id="input-situasi-custom" class="form-control rounded-3 p-2.5" placeholder="Contoh: Naik kereta api pulang ke kampung">
             </div>
 
             <!-- Pilihan Emosi -->
             <div class="col-md-6">
-              <label class="form-label fw-bold">Perasaan / Emosi Fokus</label>
+              <label class="form-label fw-bold">Emosi Sasaran</label>
               <select id="input-emosi" class="form-select rounded-3 p-2.5">
                 <option value="😊 Gembira">😊 Gembira</option>
                 <option value="😢 Sedih">😢 Sedih</option>
@@ -424,7 +424,7 @@
 
             <!-- Nilai Yang Hendak Ditekankan -->
             <div class="col-md-6">
-              <label class="form-label fw-bold">Nilai Yang Hendak Ditekankan</label>
+              <label class="form-label fw-bold">Nilai Murni Diterap</label>
               <select id="input-nilai" class="form-select rounded-3 p-2.5">
                 <option value="Sabar">Sabar</option>
                 <option value="Berkongsi">Berkongsi</option>
@@ -440,7 +440,7 @@
             <!-- Submit Button -->
             <div class="col-12 mt-4 text-center">
               <button type="submit" id="btn-generate-submit" class="btn btn-primary btn-lg rounded-pill px-5 py-3 fw-bold shadow w-100">
-                ✨ Generate Story + AI Images
+                ✨ Jana Cerita & Gambar AI
               </button>
             </div>
 
@@ -461,7 +461,7 @@
           
           <div class="d-flex flex-wrap gap-2">
             <button onclick="toggleFavoriteCurrentStory()" id="btn-fav-story" class="btn btn-outline-danger btn-sm rounded-pill">
-              <i class="fa-regular fa-heart me-1"></i> Simpan Favourite
+              <i class="fa-regular fa-heart me-1"></i> Simpan Kegemaran
             </button>
             <button onclick="readFullStoryTTS()" class="btn btn-warning btn-sm rounded-pill fw-bold">
               🔊 Baca Cerita
@@ -473,7 +473,7 @@
               📱 WhatsApp
             </button>
             <button onclick="shareEmail()" class="btn btn-outline-dark btn-sm rounded-pill">
-              📧 Email
+              📧 E-mel
             </button>
           </div>
         </div>
@@ -493,18 +493,18 @@
 
         <!-- FIRST - THEN BOARD -->
         <div class="custom-card p-4 mb-4 bg-light">
-          <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-arrows-split-up-and-left me-2"></i>First - Then Board</h5>
+          <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-arrows-split-up-and-left me-2"></i>Papan Pertama - Kemudian (First - Then Board)</h5>
           <div class="row g-3">
             <div class="col-6">
               <div class="first-then-box">
-                <span class="badge bg-primary rounded-pill mb-2 fs-6">FIRST (Pertama)</span>
-                <h5 class="fw-bold text-dark mb-0" id="res-first-text">Aktiviti Utama</h5>
+                <span class="badge bg-primary rounded-pill mb-2 fs-6">PERTAMA (First)</span>
+                <h5 class="fw-bold text-dark mb-0" id="res-first-text">Tugasan Utama</h5>
               </div>
             </div>
             <div class="col-6">
               <div class="first-then-box" style="border-color: var(--accent-green);">
-                <span class="badge bg-success rounded-pill mb-2 fs-6">THEN (Kemudian)</span>
-                <h5 class="fw-bold text-dark mb-0" id="res-then-text">Ganjaran / Aktiviti Seterusnya</h5>
+                <span class="badge bg-success rounded-pill mb-2 fs-6">KEMUDIAN (Then)</span>
+                <h5 class="fw-bold text-dark mb-0" id="res-then-text">Ganjaran / Aktiviti Disukai</h5>
               </div>
             </div>
           </div>
@@ -512,7 +512,7 @@
 
         <!-- VISUAL SCHEDULE BOARD -->
         <div class="custom-card p-4 mb-4">
-          <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-list-check me-2"></i>Visual Schedule (Jadual Visual)</h5>
+          <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-list-check me-2"></i>Jadual Visual Langkah-demi-Langkah</h5>
           <div class="d-flex flex-row overflow-x-auto gap-2 pb-2" id="res-visual-schedule"></div>
         </div>
 
@@ -520,8 +520,8 @@
 
       <!-- TOKEN REWARD BOARD -->
       <div class="custom-card p-4 mb-4 text-center no-print">
-        <h5 class="fw-bold text-primary mb-2">⭐ Papan Ganjaran Bintang (Token Reward)</h5>
-        <p class="text-muted small mb-3">Tekan bintang setiap kali kanak-kanak berjaya mendengar / membaca cerita ini!</p>
+        <h5 class="fw-bold text-primary mb-2">⭐ Papan Bintang Ganjaran (Token Reward)</h5>
+        <p class="text-muted small mb-3">Tekan pada bintang setiap kali anak selesai membaca atau menunjukkan tingkah laku positif!</p>
         <div class="d-flex justify-content-center gap-3 mb-2" id="token-stars-container">
           <i class="fa-solid fa-star star-token" onclick="toggleTokenStar(0)"></i>
           <i class="fa-solid fa-star star-token" onclick="toggleTokenStar(1)"></i>
@@ -529,12 +529,12 @@
           <i class="fa-solid fa-star star-token" onclick="toggleTokenStar(3)"></i>
           <i class="fa-solid fa-star star-token" onclick="toggleTokenStar(4)"></i>
         </div>
-        <div class="fw-bold text-success fs-5 d-none" id="token-congrats">⭐⭐⭐⭐⭐ Tahniah! Syabas!</div>
+        <div class="fw-bold text-success fs-5 d-none" id="token-congrats">⭐⭐⭐⭐⭐ Tahniah! Syabas Atas Usaha Baik Ini!</div>
       </div>
 
-      <!-- AI BEHAVIOUR TIPS -->
+      <!-- AI BEHAVIOUR TIPS (BAHASA MELAYU BAKU & LENGKAP) -->
       <div class="custom-card p-4 mb-4 no-print border-start border-5 border-success">
-        <h5 class="fw-bold text-success mb-3"><i class="fa-solid fa-lightbulb me-2"></i>Panduan & Tips Perilaku AI</h5>
+        <h5 class="fw-bold text-success mb-3"><i class="fa-solid fa-lightbulb me-2"></i>Panduan Bimbingan Tingkah Laku Khas (Pakar ASD)</h5>
         
         <div class="accordion accordion-flush" id="accordionBehaviorTips">
           <div class="accordion-item bg-transparent">
@@ -551,7 +551,7 @@
           <div class="accordion-item bg-transparent">
             <h2 class="accordion-header">
               <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#tip2">
-                ⏰ Bila Sesuai Dibaca & Kekerapan
+                ⏰ Kekerapan & Masa Pembacaan
               </button>
             </h2>
             <div id="tip2" class="accordion-collapse collapse" data-bs-parent="#accordionBehaviorTips">
@@ -562,10 +562,21 @@
           <div class="accordion-item bg-transparent">
             <h2 class="accordion-header">
               <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#tip3">
-                👩‍🏫 Tips Khas Ibu Bapa & Guru Pendidikan Khas
+                🎨 Aktiviti Susulan & Pengukuhan Visual
               </button>
             </h2>
             <div id="tip3" class="accordion-collapse collapse" data-bs-parent="#accordionBehaviorTips">
+              <div class="accordion-body text-secondary" id="tip-followup"></div>
+            </div>
+          </div>
+
+          <div class="accordion-item bg-transparent">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#tip4">
+                👩‍🏫 Petua Pengurusan Perilaku Bagi Ibu Bapa & Guru
+              </button>
+            </h2>
+            <div id="tip4" class="accordion-collapse collapse" data-bs-parent="#accordionBehaviorTips">
               <div class="accordion-body text-secondary" id="tip-parent-teacher"></div>
             </div>
           </div>
@@ -595,7 +606,7 @@
 
     <!-- 5. VIEW FAVOURITES -->
     <section id="view-favourites" class="app-view d-none">
-      <h4 class="fw-bold text-danger mb-3"><i class="fa-solid fa-star me-2"></i>Cerita Kegemaran (Favourites)</h4>
+      <h4 class="fw-bold text-danger mb-3"><i class="fa-solid fa-star me-2"></i>Cerita Kegemaran</h4>
       <div id="favourites-container" class="row g-3"></div>
     </section>
 
@@ -621,7 +632,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
             <div class="fw-bold">Mod Mesra Disleksia</div>
-            <small class="text-muted">Guna font mudah baca (Lexend/Comic Sans)</small>
+            <small class="text-muted">Guna tulisan khas yang mudah dibaca</small>
           </div>
           <div class="form-check form-switch">
             <input class="form-check-input fs-4" type="checkbox" id="setting-dyslexia-switch" onchange="toggleDyslexiaMode()">
@@ -633,7 +644,7 @@
         <div class="d-flex justify-content-between align-items-center">
           <div>
             <div class="fw-bold">Saiz Tulisan</div>
-            <small class="text-muted">Ubah saiz teks keseluruhan aplikasi</small>
+            <small class="text-muted">Ubah saiz paparan teks</small>
           </div>
           <div class="btn-group btn-group-sm">
             <button class="btn btn-outline-primary" onclick="changeFontSize(14)">Kecil</button>
@@ -644,7 +655,7 @@
       </div>
 
       <div class="custom-card p-4 mb-3">
-        <h6 class="fw-bold mb-3"><i class="fa-solid fa-user me-2 text-primary"></i>Akaun & Penyelarasan Cloud</h6>
+        <h6 class="fw-bold mb-3"><i class="fa-solid fa-user me-2 text-primary"></i>Status Akaun & Penyelarasan</h6>
         <div id="settings-account-info"></div>
       </div>
     </section>
@@ -655,23 +666,23 @@
   <nav class="bottom-nav no-print" id="bottom-navigation">
     <button class="nav-btn active" id="nav-home" onclick="showView('home')">
       <i class="fa-solid fa-house"></i>
-      <span>Home</span>
+      <span>Utama</span>
     </button>
     <button class="nav-btn" id="nav-generate" onclick="showView('generate')">
       <i class="fa-solid fa-wand-magic-sparkles"></i>
-      <span>Generate</span>
+      <span>Jana Cerita</span>
     </button>
     <button class="nav-btn" id="nav-my-stories" onclick="showView('my-stories')">
       <i class="fa-solid fa-book"></i>
-      <span>Stories</span>
+      <span>Koleksi</span>
     </button>
     <button class="nav-btn" id="nav-favourites" onclick="showView('favourites')">
       <i class="fa-solid fa-star"></i>
-      <span>Favourite</span>
+      <span>Kegemaran</span>
     </button>
     <button class="nav-btn" id="nav-settings" onclick="showView('settings')">
       <i class="fa-solid fa-gear"></i>
-      <span>Settings</span>
+      <span>Tetapan</span>
     </button>
   </nav>
 
@@ -702,7 +713,7 @@
 
   <!-- SCRIPT LOGIK APLIKASI -->
   <script>
-    // 1. FIREBASE CONFIGURATION (KEMASKINI DENGAN APP ID BAHARU)
+    // 1. FIREBASE CONFIGURATION (APP ID DENGAN APP ID BAHARU)
     const firebaseConfig = {
       apiKey: "AIzaSyDBQMTyc23M16ihIpQTOZbUhXzpFlTv7OI",
       authDomain: "social-story-generator-b807a.firebaseapp.com",
@@ -786,22 +797,22 @@
     function translateAuthError(code, message) {
       switch(code) {
         case 'auth/user-not-found':
-          return 'Akaun emel ini belum berdaftar. Sila tekan "Daftar Akaun" di atas.';
+          return 'Akaun e-mel ini belum berdaftar. Sila tekan tab "Daftar Akaun" di atas.';
         case 'auth/wrong-password':
         case 'auth/invalid-credential':
-          return 'Emel atau kata laluan tidak tepat. Sila cuba lagi.';
+          return 'E-mel atau kata laluan tidak tepat. Sila semak semula.';
         case 'auth/invalid-email':
-          return 'Format emel tidak sah.';
+          return 'Format e-mel tidak sah.';
         case 'auth/email-already-in-use':
-          return 'Emel ini telah digunakan. Sila tekan "Log Masuk".';
+          return 'E-mel ini telah berdaftar. Sila tekan tab "Log Masuk".';
         case 'auth/weak-password':
-          return 'Kata laluan mestilah sekurang-kurangnya 6 aksara.';
+          return 'Kata laluan mestilah mengandungi sekurang-kurangnya 6 aksara.';
         case 'auth/operation-not-allowed':
-          return 'Ciri Email/Password belum diaktifkan dalam Firebase Console -> Authentication -> Sign-in method. <br><button onclick="loginLocally(\'pengguna@local.com\')" class="btn btn-sm btn-dark mt-2 rounded-pill">Klik Sini Untuk Masuk Serta-Merta</button>';
+          return 'Ciri daftar e-mel belum diaktifkan di Firebase Console. <br><button onclick="loginLocally(\'pengguna@local.com\')" class="btn btn-sm btn-dark mt-2 rounded-pill">Masuk Melalui Mod Tempatan</button>';
         case 'auth/unauthorized-domain':
-          return 'Domain ini belum didaftarkan di Firebase Console. <br><button onclick="loginLocally(\'pengguna@local.com\')" class="btn btn-sm btn-dark mt-2 rounded-pill">Klik Sini Untuk Masuk Serta-Merta</button>';
+          return 'Domain ini belum berdaftar di Firebase Console. <br><button onclick="loginLocally(\'pengguna@local.com\')" class="btn btn-sm btn-dark mt-2 rounded-pill">Masuk Melalui Mod Tempatan</button>';
         default:
-          return 'Ralat Firebase: ' + message + ' <br><button onclick="loginLocally(\'pengguna@local.com\')" class="btn btn-sm btn-outline-danger mt-2 rounded-pill">Guna Mod Tempatan</button>';
+          return 'Ralat Sambungan: ' + message + ' <br><button onclick="loginLocally(\'pengguna@local.com\')" class="btn btn-sm btn-outline-danger mt-2 rounded-pill">Guna Mod Tempatan</button>';
       }
     }
 
@@ -825,7 +836,7 @@
       submitBtn.disabled = true;
 
       if (authMode === 'login') {
-        submitBtn.innerText = 'Log Masuk...';
+        submitBtn.innerText = 'Sedang Log Masuk...';
         auth.signInWithEmailAndPassword(email, pass)
           .then((userCredential) => {
             currentUser = { uid: userCredential.user.uid, email: userCredential.user.email, isLocal: false };
@@ -835,7 +846,6 @@
           })
           .catch(err => {
             console.warn("Firebase Auth Error:", err);
-            // Hybrid auto-fallback if network or domain prevents firebase login
             if (err.code === 'auth/unauthorized-domain' || err.code === 'auth/network-request-failed' || err.code === 'auth/operation-not-allowed') {
               loginLocally(email);
             } else {
@@ -854,7 +864,7 @@
             currentUser = { uid: userCredential.user.uid, email: userCredential.user.email, isLocal: false };
             localStorage.setItem('user_session', JSON.stringify(currentUser));
             successDiv.classList.remove('d-none');
-            successDiv.innerText = 'Akaun berjaya dicipta!';
+            successDiv.innerText = 'Akaun anda berjaya dicipta!';
             setTimeout(() => {
               updateAuthUI();
               showView('home');
@@ -879,16 +889,16 @@
     function handleForgotPasswordScreen() {
       const email = document.getElementById('auth-email').value.trim();
       if (!email) {
-        alert('Sila masukkan alamat emel anda pada ruang borang terlebih dahulu.');
+        alert('Sila masukkan alamat e-mel anda pada borang terlebih dahulu.');
         return;
       }
 
       auth.sendPasswordResetEmail(email)
         .then(() => {
-          alert('Pautan set semula kata laluan telah dihantar ke emel ' + email + '. Sila semak peti masuk emel anda.');
+          alert('Pautan penetapan semula kata laluan telah dihantar ke e-mel ' + email + '. Sila semak peti masuk anda.');
         })
         .catch(err => {
-          alert('Ralat semasa menghantar emel: ' + translateAuthError(err.code, err.message));
+          alert('Ralat penghantaran e-mel: ' + translateAuthError(err.code, err.message));
         });
     }
 
@@ -930,7 +940,7 @@
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <div class="fw-bold text-dark">${currentUser.email}</div>
-              <small class="text-success"><i class="fa-solid fa-cloud-check me-1"></i>${currentUser.isLocal ? 'Akaun Tempatan (Sesi Aktif)' : 'Terselaras dengan Firebase Cloud'}</small>
+              <small class="text-success"><i class="fa-solid fa-cloud-check me-1"></i>${currentUser.isLocal ? 'Akaun Sesi Tempatan' : 'Terselaras Pangkalan Data Cloud'}</small>
             </div>
             <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="logoutUser()">Log Keluar</button>
           </div>
@@ -988,7 +998,7 @@
         const storyData = generateSocialStoryByLanguageLevel({ nama, umur, bahasa, tahap, situasi, emosi, nilai });
         renderStoryResult(storyData);
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '✨ Generate Story + AI Images';
+        submitBtn.innerHTML = '✨ Jana Cerita & Gambar AI';
       }, 1000);
     }
 
@@ -1127,22 +1137,25 @@
         firstThen,
         visualSteps,
         isFav: false,
-        tips: getBehaviorTips(situasi, nilai, isBm)
+        tips: getBehaviorTips(nama, situasi, nilai, tahap, isBm)
       };
     }
 
-    function getBehaviorTips(situasi, nilai, isBm) {
+    // PAKAR BAHASA MELAYU TERAPI PERTURUTAN & PENDIDIKAN KHAS MALAYSIA
+    function getBehaviorTips(nama, situasi, nilai, tahap, isBm) {
       if (isBm) {
         return {
-          intro: `Kenalkan cerita ini semasa ${situasi} dalam keadaan tenang di rumah. Elakkan membacanya ketika anak sedang tantrum.`,
-          timing: `Baca sekurang-kurangnya 2 kali sehari (Pagi dan Sebelum Tidur) selama 3-5 hari sebelum ${situasi} berlaku.`,
-          parentTeacher: `Beri peneguhan positif (puji & bintang) sejurus anak menunjukkan amalan '${nilai}' semasa situasi sebenar.`
+          intro: `Sediakan persekitaran yang tenang dan bebas daripada gangguan gajet atau bunyi bising. Bacakan cerita ini bersama ${nama} semasa beliau dalam keadaan selesa dan tenang. Elakkan memaksa atau membaca cerita ini ketika anak sedang gelisah atau mengamuk. Duduk di sebelah ${nama} dan tunjukkan setiap gambar ilustrasi satu demi satu secara perlahan.`,
+          timing: `Bacakan cerita ini sebanyak 2 hingga 3 kali sehari (waktu terbaik ialah sejurus selepas bangun pagi dan sebelum tidur malam). Amalkan pembacaan berterusan selama 3 hingga 5 hari berturut-turut sebelum aktiviti ${situasi.toLowerCase()} dijalankan. Pengulangan yang konsisten amat penting untuk membina ingatan sosial dan kefahaman rutin anak.`,
+          followUp: `Sebaik sahaja selesai membaca, tunjukkan Papan "Pertama - Kemudian" dan Papan Bintang Ganjaran. Berikan pujian spesifik seperti: "Bagus ${nama} sebab dapat duduk tenang dan mendengar cerita!" Lakonkan semula (*role-play*) situasi ${situasi.toLowerCase()} menggunakan mainan atau patung jika perlu.`,
+          parentTeacher: `Bagi ibu bapa dan guru: Bimbing anak memberikan fokus kepada amalan '${nilai.toLowerCase()}'. Semasa situasi ${situasi.toLowerCase()} sebenar berlaku, ingatkan ${nama} secara lembut menggunakan kata kunci ringkas daripada cerita (contohnya: "${nama}, ingat cerita kita? Mari kita ${nilai.toLowerCase()}"). Berikan pujian lisan atau bintang ganjaran serta-merta apabila anak menunjukkan tingkah laku yang ditekankan.`
         };
       } else {
         return {
-          intro: `Introduce this story during calm moments before ${situasi}. Avoid reading when child is overwhelmed.`,
-          timing: `Read 2 times daily (Morning & Bedtime) for 3-5 days leading up to ${situasi}.`,
-          parentTeacher: `Give immediate verbal praise and stars when child practices '${nilai}'.`
+          intro: `Set up a quiet environment free from digital distractions. Read this story with ${nama} when they are relaxed and comfortable. Avoid reading during a meltdown or when the child is overwhelmed. Sit alongside ${nama} and point to each visual illustration as you go through the pages.`,
+          timing: `Read this story 2 to 3 times daily (ideally after waking up and before bedtime) for 3 to 5 consecutive days prior to the actual ${situasi.toLowerCase()} event. Consistent repetition helps build social memory and routine predictability for the child.`,
+          followUp: `Right after reading, refer to the included "First - Then" board and Token Reward system. Offer specific praise, such as: "Great job listening so calmly, ${nama}!" Role-play the ${situasi.toLowerCase()} scenario using toys if appropriate.`,
+          parentTeacher: `For parents and teachers: Focus on reinforcing '${nilai.toLowerCase()}'. During the actual ${situasi.toLowerCase()} situation, gently prompt ${nama} using simple keywords from the story (e.g., "${nama}, remember our story? Let's try to ${nilai.toLowerCase()}"). Give immediate praise or rewards when target behaviors are displayed.`
         };
       }
     }
@@ -1153,7 +1166,7 @@
 
       document.getElementById('res-story-title').innerText = `Cerita Sosial ${story.nama}`;
       document.getElementById('res-badge-situasi').innerText = story.situasi;
-      document.getElementById('res-story-meta').innerText = `Untuk ${story.nama} (${story.umur}) • Tahap: ${story.tahap} • Emosi: ${story.emosi}`;
+      document.getElementById('res-story-meta').innerText = `Untuk ${story.nama} (${story.umur}) • Tahap Kemahiran: ${story.tahap} • Emosi: ${story.emosi}`;
 
       const container = document.getElementById('res-sentences-container');
       container.innerHTML = '';
@@ -1198,8 +1211,10 @@
         schedContainer.insertAdjacentHTML('beforeend', `<div class="schedule-chip"><i class="fa-solid fa-circle-check"></i>${step}</div>`);
       });
 
+      // AI TIPS RENDER
       document.getElementById('tip-intro').innerText = story.tips.intro;
       document.getElementById('tip-timing').innerText = story.tips.timing;
+      document.getElementById('tip-followup').innerText = story.tips.followUp;
       document.getElementById('tip-parent-teacher').innerText = story.tips.parentTeacher;
 
       resetTokenStars();
@@ -1340,7 +1355,7 @@
           btn.innerHTML = '<i class="fa-solid fa-heart me-1"></i> Kegemaran';
           btn.className = 'btn btn-danger btn-sm rounded-pill';
         } else {
-          btn.innerHTML = '<i class="fa-regular fa-heart me-1"></i> Simpan Favourite';
+          btn.innerHTML = '<i class="fa-regular fa-heart me-1"></i> Simpan Kegemaran';
           btn.className = 'btn btn-outline-danger btn-sm rounded-pill';
         }
       }
