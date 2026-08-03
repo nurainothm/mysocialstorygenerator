@@ -462,6 +462,11 @@
           </button>
           
           <div class="d-flex flex-wrap gap-2">
+            <!-- BUTANG SIMPAN CERITA BAHARU -->
+            <button onclick="saveCurrentStoryExplicitly()" id="btn-save-story" class="btn btn-success btn-sm rounded-pill fw-bold">
+              <i class="fa-solid fa-floppy-disk me-1"></i> Simpan Cerita
+            </button>
+            
             <button onclick="toggleFavoriteCurrentStory()" id="btn-fav-story" class="btn btn-outline-danger btn-sm rounded-pill">
               <i class="fa-regular fa-heart me-1"></i> Simpan Kegemaran
             </button>
@@ -473,9 +478,6 @@
             </button>
             <button onclick="shareWhatsApp()" class="btn btn-success btn-sm rounded-pill">
               📱 WhatsApp
-            </button>
-            <button onclick="shareEmail()" class="btn btn-outline-dark btn-sm rounded-pill">
-              📧 E-mel
             </button>
           </div>
         </div>
@@ -1058,7 +1060,6 @@
       };
     }
 
-    // PAKAR BAHASA MELAYU TERAPI PERTURUTAN - HANYA CARA MEMPERKENALKAN CERITA INI
     function getBehaviorTips(nama, situasi, nilai, tahap, isBm) {
       const childName = nama || 'anak';
       if (isBm) {
@@ -1072,7 +1073,7 @@
       }
     }
 
-    // 5. RENDER STORY RESULT TO UI (DENGAN BUTANG MENGGERAKKAN AYAT)
+    // 5. RENDER STORY RESULT TO UI
     function renderStoryResult(story) {
       currentActiveStory = story;
 
@@ -1154,7 +1155,7 @@
       showView('story-result');
     }
 
-    // 6. LOGIK MENGGERAKKAN SUSUNAN AYAT (MOVE UP / DOWN) & INLINE EDITING
+    // 6. LOGIK MENGGERAKKAN SUSUNAN AYAT & SUNTINGAN CERITA
     function moveSentenceUp(index) {
       if (index > 0 && currentActiveStory) {
         const temp = currentActiveStory.sentences[index];
@@ -1240,7 +1241,26 @@
       }
     }
 
-    // 7. TEXT-TO-SPEECH (TTS) AUDIO - KHAS SUARA PEREMPUAN / WANITA BAHASA MELAYU
+    // FUNGSI KHAS: SIMPAN CERITA DENGAN PENYAMPAIAN MAKLUM BALAS VISUAL
+    function saveCurrentStoryExplicitly() {
+      if (currentActiveStory) {
+        saveStoryToStorage(currentActiveStory);
+        const btn = document.getElementById('btn-save-story');
+        if (btn) {
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> Berjaya Disimpan!';
+          btn.classList.remove('btn-success');
+          btn.classList.add('btn-dark');
+          setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('btn-dark');
+            btn.classList.add('btn-success');
+          }, 2000);
+        }
+      }
+    }
+
+    // 7. TEXT-TO-SPEECH (TTS) AUDIO - SUARA PEREMPUAN WANITA BM
     function getMalayFemaleVoice() {
       if (availableVoices.length === 0) {
         availableVoices = window.speechSynthesis.getVoices();
@@ -1386,7 +1406,7 @@
       }
     }
 
-    // 10. RENDER MY STORIES & FAVOURITES (DENGAN PEMBAIKAN BUTANG PADAM)
+    // 10. RENDER MY STORIES & FAVOURITES
     function renderHomeRecentStories() {
       const container = document.getElementById('home-recent-stories');
       container.innerHTML = '';
@@ -1498,32 +1518,13 @@
       });
     }
 
-    // 11. SHARING & EXPORTING (DENGAN PEMBAIKAN BUTANG E-MEL)
+    // 11. SHARING
     function shareWhatsApp() {
       if (currentActiveStory) {
         const text = `*Cerita Sosial ASD: ${currentActiveStory.nama}*\nSituasi: ${currentActiveStory.situasi}\n\n` + 
           currentActiveStory.sentences.map((s, idx) => `${idx + 1}. ${s.text}`).join('\n') +
           `\n\nDihasilkan melalui My Social Story Generator App.`;
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
-      }
-    }
-
-    function shareEmail() {
-      if (currentActiveStory) {
-        const subject = `Cerita Sosial ASD - ${currentActiveStory.nama} (${currentActiveStory.situasi})`;
-        const bodyText = `Cerita Sosial: ${currentActiveStory.nama}\r\nSituasi: ${currentActiveStory.situasi}\r\n\r\n` + 
-          currentActiveStory.sentences.map((s, idx) => `${idx + 1}. ${s.text}`).join('\r\n\r\n') +
-          `\r\n\r\nDihasilkan melalui My Social Story Generator.`;
-        
-        const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
-        
-        // Panggilan Dinamik Anchor Link (Sangat Stabil di Telefon & Komputer)
-        const link = document.createElement('a');
-        link.href = mailtoUrl;
-        link.target = '_blank';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
       }
     }
 
