@@ -126,28 +126,44 @@
       background-color: var(--light-blue);
     }
 
+    /* KAD APERBAIKI UNTUK REKABENTUK GAMBAR CERITA SOSIAL */
     .sentence-card {
       background-color: var(--card-bg);
       border: 2px solid var(--border-color);
-      border-radius: 1rem;
+      border-radius: 1.25rem;
       overflow: hidden;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .sentence-card:hover {
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
     }
 
     .sentence-img-container {
       position: relative;
       background-color: var(--light-blue);
-      height: 240px;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      max-height: 360px;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      border-bottom: 2px solid var(--border-color);
     }
 
     .sentence-img {
-      max-height: 100%;
       width: 100%;
+      height: 100%;
       object-fit: cover;
+      object-position: center;
+      transition: transform 0.3s ease;
+    }
+
+    .sentence-card:hover .sentence-img {
+      transform: scale(1.02);
     }
 
     .schedule-chip {
@@ -187,7 +203,7 @@
       body { background: white !important; color: black !important; padding-bottom: 0 !important; }
       .no-print, .app-header, .bottom-nav, .btn, .nav-btn { display: none !important; }
       .custom-card, .sentence-card { border: 1px solid #ccc !important; break-inside: avoid; box-shadow: none !important; }
-      .sentence-img-container { height: 200px !important; }
+      .sentence-img-container { height: 220px !important; aspect-ratio: auto !important; }
     }
   </style>
 </head>
@@ -539,55 +555,10 @@
         <div class="fw-bold text-success fs-5 d-none" id="token-congrats">⭐⭐⭐⭐⭐ Tahniah! Syabas Atas Usaha Baik Ini!</div>
       </div>
 
-      <!-- AI BEHAVIOUR TIPS (ACCORDION DIPERBAIKI PENUH) -->
+      <!-- PANDUAN CARA MEMPERKENALKAN CERITA INI (RINGKAS & DIBERSIHKAN) -->
       <div class="custom-card p-4 mb-4 no-print border-start border-5 border-success">
-        <h5 class="fw-bold text-success mb-3"><i class="fa-solid fa-lightbulb me-2"></i>Panduan Bimbingan Tingkah Laku Khas (Pakar ASD)</h5>
-        
-        <div class="accordion accordion-flush" id="accordionBehaviorTips">
-          <div class="accordion-item bg-transparent">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#tip1">
-                📌 Cara Memperkenalkan Cerita Ini
-              </button>
-            </h2>
-            <div id="tip1" class="accordion-collapse collapse show" data-bs-parent="#accordionBehaviorTips">
-              <div class="accordion-body text-secondary" id="tip-intro"></div>
-            </div>
-          </div>
-          
-          <div class="accordion-item bg-transparent">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#tip2">
-                ⏰ Kekerapan & Masa Pembacaan
-              </button>
-            </h2>
-            <div id="tip2" class="accordion-collapse collapse" data-bs-parent="#accordionBehaviorTips">
-              <div class="accordion-body text-secondary" id="tip-timing"></div>
-            </div>
-          </div>
-
-          <div class="accordion-item bg-transparent">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#tip3">
-                🎨 Aktiviti Susulan & Pengukuhan Visual
-              </button>
-            </h2>
-            <div id="tip3" class="accordion-collapse collapse" data-bs-parent="#accordionBehaviorTips">
-              <div class="accordion-body text-secondary" id="tip-followup"></div>
-            </div>
-          </div>
-
-          <div class="accordion-item bg-transparent">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#tip4">
-                👩‍🏫 Petua Pengurusan Perilaku Bagi Ibu Bapa & Guru
-              </button>
-            </h2>
-            <div id="tip4" class="accordion-collapse collapse" data-bs-parent="#accordionBehaviorTips">
-              <div class="accordion-body text-secondary" id="tip-parent-teacher"></div>
-            </div>
-          </div>
-        </div>
+        <h5 class="fw-bold text-success mb-2"><i class="fa-solid fa-lightbulb me-2"></i>📌 Cara Memperkenalkan Cerita Ini</h5>
+        <p class="text-secondary mb-0" id="tip-intro" style="line-height: 1.7;"></p>
       </div>
 
     </section>
@@ -720,7 +691,6 @@
     let availableVoices = [];
     let authMode = 'login';
 
-    // MEMUATKAN SUARA TTS UNTUK MENGELAKKAN ACCENT INGGERIS
     function populateVoices() {
       if ('speechSynthesis' in window) {
         availableVoices = window.speechSynthesis.getVoices();
@@ -737,7 +707,6 @@
     document.addEventListener("DOMContentLoaded", () => {
       loadLocalStories();
 
-      // Semak Sesi Tempatan Dulu
       const savedUser = localStorage.getItem('user_session');
       if (savedUser) {
         try {
@@ -749,7 +718,6 @@
         }
       }
 
-      // Firebase Auth State Listener
       auth.onAuthStateChanged(user => {
         if (user) {
           currentUser = { uid: user.uid, email: user.email, isLocal: false };
@@ -1139,30 +1107,21 @@
       };
     }
 
-    // PAKAR BAHASA MELAYU TERAPI PERTURUTAN & PENDIDIKAN KHAS MALAYSIA
+    // PAKAR BAHASA MELAYU TERAPI PERTURUTAN - HANYA CARA MEMPERKENALKAN CERITA INI
     function getBehaviorTips(nama, situasi, nilai, tahap, isBm) {
       const childName = nama || 'anak';
-      const situationName = situasi ? situasi.toLowerCase() : 'situasi harian';
-      const valueName = nilai ? nilai.toLowerCase() : 'sabar';
-
       if (isBm) {
         return {
-          intro: `Sediakan persekitaran yang tenang dan bebas daripada gangguan gajet atau bunyi bising. Bacakan cerita ini bersama ${childName} semasa beliau dalam keadaan selesa dan tenang. Elakkan memaksa atau membaca cerita ini ketika anak sedang gelisah atau mengamuk. Duduk di sebelah ${childName} dan tunjukkan setiap gambar ilustrasi satu demi satu secara perlahan.`,
-          timing: `Bacakan cerita ini sebanyak 2 hingga 3 kali sehari (waktu terbaik ialah sejurus selepas bangun pagi dan sebelum tidur malam). Amalkan pembacaan berterusan selama 3 hingga 5 hari berturut-turut sebelum aktiviti ${situationName} dijalankan. Pengulangan yang konsisten amat penting untuk membina ingatan sosial dan kefahaman rutin anak.`,
-          followUp: `Sebaik sahaja selesai membaca, tunjukkan Papan "Pertama - Kemudian" dan Papan Bintang Ganjaran. Berikan pujian spesifik seperti: "Bagus ${childName} sebab dapat duduk tenang dan mendengar cerita!" Lakonkan semula situasi ${situationName} menggunakan mainan atau patung jika perlu.`,
-          parentTeacher: `Bagi ibu bapa dan guru: Bimbing anak memberikan fokus kepada amalan '${valueName}'. Semasa situasi ${situationName} sebenar berlaku, ingatkan ${childName} secara lembut menggunakan kata kunci ringkas daripada cerita (contohnya: "${childName}, ingat cerita kita? Mari kita ${valueName}"). Berikan pujian lisan atau bintang ganjaran serta-merta apabila anak menunjukkan tingkah laku yang ditekankan.`
+          intro: `Sediakan persekitaran yang tenang dan bebas daripada gangguan gajet atau bunyi bising. Bacakan cerita ini bersama ${childName} semasa beliau dalam keadaan selesa dan tenang. Elakkan memaksa atau membaca cerita ini ketika anak sedang gelisah atau mengamuk. Duduk di sebelah ${childName} dan tunjukkan setiap gambar ilustrasi satu demi satu secara perlahan.`
         };
       } else {
         return {
-          intro: `Set up a quiet environment free from digital distractions. Read this story with ${childName} when they are relaxed and comfortable. Avoid reading during a meltdown or when the child is overwhelmed. Sit alongside ${childName} and point to each visual illustration as you go through the pages.`,
-          timing: `Read this story 2 to 3 times daily (ideally after waking up and before bedtime) for 3 to 5 consecutive days prior to the actual ${situationName} event. Consistent repetition helps build social memory and routine predictability for the child.`,
-          followUp: `Right after reading, refer to the included "First - Then" board and Token Reward system. Offer specific praise, such as: "Great job listening so calmly, ${childName}!" Role-play the ${situationName} scenario using toys if appropriate.`,
-          parentTeacher: `For parents and teachers: Focus on reinforcing '${valueName}'. During the actual ${situationName} situation, gently prompt ${childName} using simple keywords from the story (e.g., "${childName}, remember our story? Let's try to ${valueName}"). Give immediate praise or rewards when target behaviors are displayed.`
+          intro: `Set up a quiet environment free from digital distractions. Read this story with ${childName} when they are relaxed and comfortable. Avoid reading during a meltdown or when the child is overwhelmed. Sit alongside ${childName} and point to each visual illustration as you go through the pages.`
         };
       }
     }
 
-    // 5. RENDER STORY RESULT TO UI (SEMAKAN DIPERBAIKI PADA TIAP ACCORDION TIPS)
+    // 5. RENDER STORY RESULT TO UI
     function renderStoryResult(story) {
       currentActiveStory = story;
 
@@ -1230,15 +1189,12 @@
         schedContainer.insertAdjacentHTML('beforeend', `<div class="schedule-chip"><i class="fa-solid fa-circle-check"></i>${step}</div>`);
       });
 
-      // PENGESANAN AUTO-FALLBACK TIPS (MEMATIKAN BAHAGIAN KOSONG / MISSING KEYS)
-      if (!story.tips || !story.tips.intro || !story.tips.timing || !story.tips.followUp || !story.tips.parentTeacher) {
+      // CARA MEMPERKENALKAN CERITA INI
+      if (!story.tips || !story.tips.intro) {
         story.tips = getBehaviorTips(story.nama, story.situasi, story.nilai, story.tahap, story.bahasa === 'BM');
       }
 
       document.getElementById('tip-intro').innerText = story.tips.intro;
-      document.getElementById('tip-timing').innerText = story.tips.timing;
-      document.getElementById('tip-followup').innerText = story.tips.followUp;
-      document.getElementById('tip-parent-teacher').innerText = story.tips.parentTeacher;
 
       resetTokenStars();
       saveStoryToStorage(story);
