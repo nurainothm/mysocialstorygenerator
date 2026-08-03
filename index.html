@@ -291,15 +291,15 @@
         <div class="col-6 col-md-3">
           <div class="custom-card p-3 text-center">
             <i class="fa-solid fa-volume-high fs-3 text-warning mb-2"></i>
-            <h6 class="fw-bold mb-0">Suara Sebutan</h6>
-            <small class="text-muted">BM & English</small>
+            <h6 class="fw-bold mb-0">Suara Melayu</h6>
+            <small class="text-muted">Sebutan BM Asli</small>
           </div>
         </div>
         <div class="col-6 col-md-3">
           <div class="custom-card p-3 text-center">
-            <i class="fa-solid fa-calendar-check fs-3 text-info mb-2"></i>
-            <h6 class="fw-bold mb-0">Jadual Visual</h6>
-            <small class="text-muted">Carta Langkah</small>
+            <i class="fa-solid fa-pen-to-square fs-3 text-info mb-2"></i>
+            <h6 class="fw-bold mb-0">Boleh Sunting</h6>
+            <small class="text-muted">Ayat Sendiri</small>
           </div>
         </div>
       </div>
@@ -464,7 +464,7 @@
               <i class="fa-regular fa-heart me-1"></i> Simpan Kegemaran
             </button>
             <button onclick="readFullStoryTTS()" class="btn btn-warning btn-sm rounded-pill fw-bold">
-              🔊 Baca Cerita
+              🔊 Baca Cerita (BM)
             </button>
             <button onclick="window.print()" class="btn btn-outline-primary btn-sm rounded-pill">
               📄 PDF / 🖨 Cetak
@@ -486,6 +486,13 @@
           <span class="badge bg-primary rounded-pill mb-2" id="res-badge-situasi">Situasi</span>
           <h2 class="fw-bold mb-1" id="res-story-title">Cerita Sosial Ali</h2>
           <small class="text-muted" id="res-story-meta">Untuk Ali (5 tahun) • Emosi: 😊 Gembira • Nilai: Sabar</small>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+          <div class="text-muted small"><i class="fa-solid fa-info-circle me-1"></i>Tekan ikon ✏️ pada mana-mana kad untuk menyunting ayat sendiri.</div>
+          <button class="btn btn-outline-primary btn-sm rounded-pill font-monospace" onclick="addNewSentence()">
+            <i class="fa-solid fa-plus me-1"></i>Tambah Ayat Baharu
+          </button>
         </div>
 
         <!-- Sentence Cards Container -->
@@ -685,28 +692,6 @@
       <span>Tetapan</span>
     </button>
   </nav>
-
-  <!-- MODAL EDIT SENTENCE -->
-  <div class="modal fade" id="editSentenceModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content custom-card border-0 p-3">
-        <div class="modal-header border-0">
-          <h5 class="modal-title fw-bold text-primary">Sunting Ayat Cerita</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" id="edit-sentence-index">
-          <div class="mb-3">
-            <label class="form-label fw-bold">Teks Ayat Baharu</label>
-            <textarea id="edit-sentence-text" class="form-control rounded-3" rows="3"></textarea>
-          </div>
-          <button type="button" onclick="saveEditedSentence()" class="btn btn-primary w-100 rounded-pill fw-bold">
-            Simpan Perubahan
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Bootstrap 5 Bundle JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/bootstrap.bundle.min.js"></script>
@@ -1173,7 +1158,7 @@
       }
     }
 
-    // 5. RENDER STORY RESULT TO UI
+    // 5. RENDER STORY RESULT TO UI (INLINE SUNTINGAN TERUS PADA KAD)
     function renderStoryResult(story) {
       currentActiveStory = story;
 
@@ -1196,20 +1181,37 @@
                 </button>
               </div>
             </div>
-            <div class="p-3 d-flex justify-content-between align-items-center">
-              <span class="fs-5 fw-bold text-dark me-2">${s.text}</span>
-              <div class="d-flex gap-1 no-print">
-                <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="speakSentenceText('${s.text.replace(/'/g, "\\'")}')" title="Sebut Ayat">
-                  <i class="fa-solid fa-volume-high"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openEditModal(${idx})" title="Sunting Ayat">
-                  <i class="fa-solid fa-pen"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger rounded-circle" onclick="deleteSentence(${idx})" title="Padam Ayat">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
+            
+            <div class="p-3">
+              <!-- Mode Paparan Teks Normal -->
+              <div id="sentence_view_box_${idx}" class="d-flex justify-content-between align-items-center">
+                <span class="fs-5 fw-bold text-dark me-2" id="text_display_${idx}">${s.text}</span>
+                <div class="d-flex gap-1 no-print">
+                  <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="speakSentenceText('${s.text.replace(/'/g, "\\'")}')" title="Sebut Ayat Dalam BM">
+                    <i class="fa-solid fa-volume-high"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="toggleInlineEdit(${idx})" title="Sunting Ayat Ini">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger rounded-circle" onclick="deleteSentence(${idx})" title="Padam Ayat Ini">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Mode Suntingan Ayat Terus (Inline Form) -->
+              <div id="sentence_edit_box_${idx}" class="d-none no-print">
+                <label class="form-label fw-bold text-primary small mb-1">Sunting Teks Ayat Kustom Anda:</label>
+                <textarea id="input_edit_${idx}" class="form-control rounded-3 mb-2" rows="2">${s.text}</textarea>
+                <div class="d-flex gap-2 justify-content-end">
+                  <button class="btn btn-sm btn-light rounded-pill px-3" onclick="toggleInlineEdit(${idx})">Batal</button>
+                  <button class="btn btn-sm btn-primary rounded-pill px-3 fw-bold" onclick="saveInlineEdit(${idx})">
+                    <i class="fa-solid fa-check me-1"></i>Simpan Ayat
+                  </button>
+                </div>
               </div>
             </div>
+
           </div>
         `;
         container.insertAdjacentHTML('beforeend', cardHtml);
@@ -1235,7 +1237,46 @@
       showView('story-result');
     }
 
-    // 6. EDITING & CUSTOM IMAGE UPLOAD (SUNTINGAN AYAT DIPERBAIKI)
+    // 6. LOGIK SUNTINGAN AYAT TERUS (INLINE EDITING & TAMBAH AYAT BAHARU)
+    function toggleInlineEdit(idx) {
+      const viewBox = document.getElementById(`sentence_view_box_${idx}`);
+      const editBox = document.getElementById(`sentence_edit_box_${idx}`);
+
+      if (viewBox && editBox) {
+        viewBox.classList.toggle('d-none');
+        editBox.classList.toggle('d-none');
+      }
+    }
+
+    function saveInlineEdit(idx) {
+      const inputVal = document.getElementById(`input_edit_${idx}`).value.trim();
+      if (inputVal && currentActiveStory && currentActiveStory.sentences[idx]) {
+        currentActiveStory.sentences[idx].text = inputVal;
+        saveStoryToStorage(currentActiveStory);
+        renderStoryResult(currentActiveStory);
+      } else {
+        alert('Ayat tidak boleh dibiarkan kosong.');
+      }
+    }
+
+    function addNewSentence() {
+      if (!currentActiveStory) return;
+
+      const text = prompt("Masukkan ayat baharu yang anda ingin tambahkan ke dalam cerita ini:");
+      if (text && text.trim()) {
+        const cleanText = text.trim();
+        const newSentence = {
+          id: 's_' + Date.now() + '_' + currentActiveStory.sentences.length,
+          text: cleanText,
+          img: generateAIImageUrl(cleanText, currentActiveStory.situasi)
+        };
+
+        currentActiveStory.sentences.push(newSentence);
+        saveStoryToStorage(currentActiveStory);
+        renderStoryResult(currentActiveStory);
+      }
+    }
+
     function uploadCustomImage(event, index) {
       const file = event.target.files[0];
       if (file) {
@@ -1250,52 +1291,45 @@
       }
     }
 
-    function openEditModal(index) {
-      if (!currentActiveStory || !currentActiveStory.sentences[index]) return;
-
-      document.getElementById('edit-sentence-index').value = index;
-      document.getElementById('edit-sentence-text').value = currentActiveStory.sentences[index].text;
-
-      const modalEl = document.getElementById('editSentenceModal');
-      let modalInstance = bootstrap.Modal.getInstance(modalEl);
-      if (!modalInstance) {
-        modalInstance = new bootstrap.Modal(modalEl);
-      }
-      modalInstance.show();
-    }
-
-    function saveEditedSentence() {
-      const indexInput = document.getElementById('edit-sentence-index').value;
-      const index = parseInt(indexInput, 10);
-      const newText = document.getElementById('edit-sentence-text').value.trim();
-
-      if (!isNaN(index) && newText && currentActiveStory && currentActiveStory.sentences[index]) {
-        currentActiveStory.sentences[index].text = newText;
-        
-        saveStoryToStorage(currentActiveStory);
-        renderStoryResult(currentActiveStory);
-
-        const modalEl = document.getElementById('editSentenceModal');
-        const modalInstance = bootstrap.Modal.getInstance(modalEl);
-        if (modalInstance) {
-          modalInstance.hide();
-        }
-      }
-    }
-
     function deleteSentence(index) {
       if (currentActiveStory && currentActiveStory.sentences.length > 1) {
-        currentActiveStory.sentences.splice(index, 1);
-        renderStoryResult(currentActiveStory);
+        if (confirm('Adakah anda pasti mahu memadam ayat ini?')) {
+          currentActiveStory.sentences.splice(index, 1);
+          saveStoryToStorage(currentActiveStory);
+          renderStoryResult(currentActiveStory);
+        }
       } else {
         alert('Cerita mestilah mengandungi sekurang-kurangnya 1 ayat.');
       }
     }
 
-    // 7. TEXT-TO-SPEECH (TTS) AUDIO (HILANGKAN ACCENT INGGERIS)
+    // 7. TEXT-TO-SPEECH (TTS) AUDIO (HILANGKAN ACCENT INGGERIS - POKOK BAHASA MELAYU/INDONESIA)
+    function getMalayVoice() {
+      if (availableVoices.length === 0) {
+        availableVoices = window.speechSynthesis.getVoices();
+      }
+
+      // 1. Keutamaan Pertama: Suara Bahasa Melayu Asli (ms-MY / Malay)
+      let v = availableVoices.find(voice => 
+        voice.lang.toLowerCase().includes('ms') || 
+        voice.lang.toLowerCase().includes('melayu') ||
+        voice.name.toLowerCase().includes('malay')
+      );
+
+      // 2. Keutamaan Kedua: Suara Bahasa Indonesia (id-ID) untuk mengelakkan sebutan beraccent Inggeris
+      if (!v) {
+        v = availableVoices.find(voice => 
+          voice.lang.toLowerCase().includes('id') || 
+          voice.name.toLowerCase().includes('indonesia')
+        );
+      }
+
+      return v;
+    }
+
     function speakSentenceText(text) {
       if (!('speechSynthesis' in window)) {
-        alert('Fungsi suara tidak disokong oleh pelayar anda.');
+        alert('Fungsi suara tidak disokong oleh peranti/pelayar anda.');
         return;
       }
 
@@ -1303,37 +1337,18 @@
       const utterance = new SpeechSynthesisUtterance(text);
       const isEn = currentActiveStory && currentActiveStory.bahasa === 'EN';
 
-      if (availableVoices.length === 0) {
-        availableVoices = window.speechSynthesis.getVoices();
-      }
-
       if (isEn) {
         utterance.lang = 'en-US';
-        const enVoice = availableVoices.find(v => v.lang.toLowerCase().includes('en'));
-        if (enVoice) utterance.voice = enVoice;
       } else {
-        // Cari Suara Bahasa Melayu (ms-MY) Dahulu
+        // Tetapkan kod bahasa baku
         utterance.lang = 'ms-MY';
-        let targetVoice = availableVoices.find(v => 
-          v.lang.toLowerCase().includes('ms') || 
-          v.lang.toLowerCase().includes('melayu') ||
-          v.name.toLowerCase().includes('malay')
-        );
-
-        // Pengganti: Jika peranti tiada BM, gunakan Bahasa Indonesia (id-ID) mengelakkan accent Inggeris
-        if (!targetVoice) {
-          targetVoice = availableVoices.find(v => 
-            v.lang.toLowerCase().includes('id') || 
-            v.name.toLowerCase().includes('indonesia')
-          );
-        }
-
-        if (targetVoice) {
-          utterance.voice = targetVoice;
+        const msVoice = getMalayVoice();
+        if (msVoice) {
+          utterance.voice = msVoice;
         }
       }
 
-      utterance.rate = 0.85;
+      utterance.rate = 0.85; // Kelajuan perlahan khas untuk pendidikan khas
       utterance.pitch = 1.0;
       window.speechSynthesis.speak(utterance);
     }
