@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>My Social Story Generator</title>
+  
+  <!-- Manifest PWA Inline Meta -->
+  <meta name="theme-color" content="#38bdf8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Aplikasi Penjana Cerita Sosial untuk Kanak-kanak Autism (ASD) di Malaysia">
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <!-- Firebase Compatibility SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Lexend+Deca:wght@400;600;700&display=swap');
+
+    :root {
+      --bg-main: #f0f9ff;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --primary-blue: #0284c7;
+      --light-blue: #e0f2fe;
+      --pastel-green: #dcfce7;
+      --accent-green: #16a34a;
+      --border-color: #e2e8f0;
+      --base-font-size: 16px;
+      --app-font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body.dark-mode {
+      --bg-main: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary-blue: #38bdf8;
+      --light-blue: #1e3a8a;
+      --pastel-green: #14532d;
+      --accent-green: #22c55e;
+      --border-color: #334155;
+    }
+
+    body.dyslexia-font {
+      --app-font-family: 'Comic Sans MS', 'Lexend Deca', sans-serif;
+      letter-spacing: 0.05em;
+      word-spacing: 0.1em;
+      line-height: 1.8;
+    }
+
+    html {
+      font-size: var(--base-font-size);
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--app-font-family);
+      margin: 0;
+      padding-bottom: 80px;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Header Nav */
+    .app-header {
+      background-color: var(--card-bg);
+      border-bottom: 2px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 1030;
+    }
+
+    .brand-title {
+      color: var(--primary-blue);
+      font-weight: 800;
+      font-size: 1.35rem;
+    }
+
+    /* Cards */
+    .custom-card {
+      background-color: var(--card-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 1.25rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      transition: all 0.2s ease;
+    }
+
+    .custom-card:hover {
+      border-color: var(--primary-blue);
+    }
+
+    /* Bottom Nav Bar for Mobile */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: var(--card-bg);
+      border-top: 2px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      padding: 0.5rem 0;
+      z-index: 1040;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.75rem;
+      transition: all 0.2s;
+    }
+
+    .nav-btn i {
+      font-size: 1.25rem;
+      margin-bottom: 2px;
+    }
+
+    .nav-btn.active {
+      color: var(--primary-blue);
+      background-color: var(--light-blue);
+    }
+
+    /* Story Card Display */
+    .sentence-card {
+      background-color: var(--card-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 1rem;
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+    }
+
+    .sentence-img-container {
+      position: relative;
+      background-color: var(--light-blue);
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .sentence-img {
+      max-height: 100%;
+      width: 100%;
+      object-fit: cover;
+    }
+
+    /* Visual Schedule & First-Then */
+    .schedule-chip {
+      background-color: var(--light-blue);
+      color: var(--primary-blue);
+      border: 2px solid var(--primary-blue);
+      border-radius: 1rem;
+      padding: 0.75rem 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .first-then-box {
+      border: 3px dashed var(--primary-blue);
+      border-radius: 1.25rem;
+      padding: 1.25rem;
+      background-color: var(--card-bg);
+      text-align: center;
+    }
+
+    /* Stars / Token Board */
+    .star-token {
+      font-size: 2.25rem;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: transform 0.2s, color 0.2s;
+    }
+
+    .star-token.active {
+      color: #f59e0b;
+      transform: scale(1.2);
+    }
+
+    /* Printable Styles */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+        padding-bottom: 0 !important;
+      }
+      .no-print, .app-header, .bottom-nav, .btn, .nav-btn {
+        display: none !important;
+      }
+      .custom-card, .sentence-card {
+        border: 1px solid #ccc !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        box-shadow: none !important;
+      }
+      .sentence-img-container {
+        height: 180px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER APLIKASI -->
+  <header class="app-header p-3 no-print">
+    <div class="container max-w-4xl d-flex justify-content-between items-center">
+      <div class="d-flex align-items-center gap-2">
+        <span class="fs-3">📖</span>
+        <span class="brand-title">My Social Story</span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="toggleDyslexiaMode()" title="Mod Disleksia">
+          <i class="fa-solid fa-font"></i>
+        </button>
+        <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="toggleDarkMode()" title="Mod Gelap">
+          <i class="fa-solid fa-moon" id="dark-icon"></i>
+        </button>
+        <div id="auth-header-btn">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- KANDUNGAN UTAMA / VIEWS -->
+  <main class="container my-4 max-w-4xl px-3">
+
+    <!-- 1. VIEW HOME -->
+    <section id="view-home" class="app-view">
+      <div class="custom-card p-4 p-md-5 mb-4 text-center bg-gradient position-relative overflow-hidden" style="background: linear-gradient(135deg, var(--light-blue), var(--pastel-green));">
+        <div class="mb-3 fs-1">🧩✨</div>
+        <h1 class="fw-bold mb-2 text-primary">Penjana Cerita Sosial PANTAS & Peribadi</h1>
+        <p class="text-secondary fs-6 mb-4">Membantu kanak-kanak Autism (ASD) memahami situasi sosial, emosi, dan perubahan rutin dalam masa kurang daripada 2 minit.</p>
+        <button onclick="showView('generate')" class="btn btn-primary btn-lg rounded-pill px-4 py-3 fw-bold shadow">
+          <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Cipta Cerita Sekarang
+        </button>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="custom-card p-3 text-center">
+            <i class="fa-solid fa-clock-rotate-left fs-3 text-primary mb-2"></i>
+            <h6 class="fw-bold mb-0">Kurang 2 Minit</h6>
+            <small class="text-muted">Penjanaan Pantas</small>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="custom-card p-3 text-center">
+            <i class="fa-solid fa-face-smile fs-3 text-success mb-2"></i>
+            <h6 class="fw-bold mb-0">Pendekatan Positif</h6>
+            <small class="text-muted">Standard Terapi ASD</small>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="custom-card p-3 text-center">
+            <i class="fa-solid fa-volume-high fs-3 text-warning mb-2"></i>
+            <h6 class="fw-bold mb-0">Suara TTS</h6>
+            <small class="text-muted">Bahasa Melayu & EN</small>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="custom-card p-3 text-center">
+            <i class="fa-solid fa-calendar-check fs-3 text-info mb-2"></i>
+            <h6 class="fw-bold mb-0">Jadual Visual</h6>
+            <small class="text-muted">First-Then Board</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0"><i class="fa-solid fa-clock-history me-2 text-primary"></i>Cerita Terakhir</h5>
+        <button class="btn btn-link btn-sm text-decoration-none" onclick="showView('my-stories')">Lihat Semua</button>
+      </div>
+      <div id="home-recent-stories" class="row g-3">
+        <!-- Populated via JS -->
+      </div>
+    </section>
+
+    <!-- 2. VIEW GENERATE STORY FORM -->
+    <section id="view-generate" class="app-view d-none">
+      <div class="custom-card p-4 mb-4">
+        <h4 class="fw-bold text-primary mb-3"><i class="fa-solid fa-pen-nib me-2"></i>Bina Cerita Sosial Baharu</h4>
+        
+        <form id="form-generate-story" onsubmit="handleGenerateStory(event)">
+          <div class="row g-3">
+            
+            <!-- Nama Anak -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Nama Anak <span class="text-danger">*</span></label>
+              <input type="text" id="input-nama" class="form-control rounded-3 p-2.5" placeholder="Contoh: Ali" required>
+            </div>
+
+            <!-- Umur -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Umur</label>
+              <select id="input-umur" class="form-select rounded-3 p-2.5">
+                <option value="2 tahun">2 tahun</option>
+                <option value="3 tahun">3 tahun</option>
+                <option value="4 tahun">4 tahun</option>
+                <option value="5 tahun" selected>5 tahun</option>
+                <option value="6 tahun">6 tahun</option>
+                <option value="7 tahun">7 tahun</option>
+                <option value="8 tahun">8 tahun</option>
+                <option value="9 tahun">9 tahun</option>
+                <option value="10 tahun">10 tahun</option>
+                <option value="11 tahun">11 tahun</option>
+                <option value="12 tahun">12 tahun</option>
+              </select>
+            </div>
+
+            <!-- Bahasa -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Bahasa Cerita</label>
+              <select id="input-bahasa" class="form-select rounded-3 p-2.5">
+                <option value="BM" selected>Bahasa Melayu</option>
+                <option value="EN">English</option>
+              </select>
+            </div>
+
+            <!-- Tahap Bahasa -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Tahap Bahasa Anak</label>
+              <select id="input-tahap" class="form-select rounded-3 p-2.5">
+                <option value="Non-Verbal">Non-Verbal (Visual Dominant)</option>
+                <option value="1-2 Patah Perkataan">1 - 2 Patah Perkataan</option>
+                <option value="3-4 Patah Perkataan" selected>3 - 4 Patah Perkataan</option>
+                <option value="5+ Patah Perkataan">5 atau lebih Patah Perkataan</option>
+              </select>
+            </div>
+
+            <!-- Panjang Cerita -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Panjang Cerita</label>
+              <select id="input-panjang" class="form-select rounded-3 p-2.5">
+                <option value="Pendek (5 ayat)" selected>Pendek (5 ayat)</option>
+                <option value="Sederhana (10 ayat)">Sederhana (10 ayat)</option>
+                <option value="Panjang (15 ayat)">Panjang (15 ayat)</option>
+              </select>
+            </div>
+
+            <!-- Pilih Situasi Preset -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Pilih Situasi</label>
+              <select id="input-situasi-select" class="form-select rounded-3 p-2.5" onchange="toggleCustomSituation(this.value)">
+                <option value="Pergi ke sekolah">Pergi ke sekolah</option>
+                <option value="Pergi klinik">Pergi klinik</option>
+                <option value="Potong rambut">Potong rambut</option>
+                <option value="Pergi pasar raya">Pergi pasar raya</option>
+                <option value="Bermain di taman">Bermain di taman</option>
+                <option value="Berkongsi permainan">Berkongsi permainan</option>
+                <option value="Menunggu giliran">Menunggu giliran</option>
+                <option value="Duduk di restoran">Duduk di restoran</option>
+                <option value="Naik kapal terbang">Naik kapal terbang</option>
+                <option value="Naik bas">Naik bas</option>
+                <option value="Pergi kenduri">Pergi kenduri</option>
+                <option value="Hari pertama sekolah">Hari pertama sekolah</option>
+                <option value="Lawatan ke zoo">Lawatan ke zoo</option>
+                <option value="Lawatan ke hospital">Lawatan ke hospital</option>
+                <option value="Naik lif">Naik lif</option>
+                <option value="Pergi berenang">Pergi berenang</option>
+                <option value="Pergi ke majlis hari jadi">Pergi ke majlis hari jadi</option>
+                <option value="Solat di masjid">Solat di masjid</option>
+                <option value="Pergi membeli-belah">Pergi membeli-belah</option>
+                <option value="Menyambut Hari Raya">Menyambut Hari Raya</option>
+                <option value="Pergi bercuti">Pergi bercuti</option>
+                <option value="Pergi ke kelas terapi">Pergi ke kelas terapi</option>
+                <option value="Bermain bersama rakan">Bermain bersama rakan</option>
+                <option value="Mengemas mainan">Mengemas mainan</option>
+                <option value="Memberus gigi">Memberus gigi</option>
+                <option value="Mandi">Mandi</option>
+                <option value="Tidur">Tidur</option>
+                <option value="Bangun pagi">Bangun pagi</option>
+                <option value="Memakai kasut">Memakai kasut</option>
+                <option value="Memakai pakaian sekolah">Memakai pakaian sekolah</option>
+                <option value="Memakai pelitup muka">Memakai pelitup muka</option>
+                <option value="CUSTOM">-- Situasi Sendiri --</option>
+              </select>
+            </div>
+
+            <!-- Situasi Sendiri Input -->
+            <div class="col-12 d-none" id="custom-situation-container">
+              <label class="form-label fw-bold">Taip Situasi Sendiri</label>
+              <input type="text" id="input-situasi-custom" class="form-control rounded-3 p-2.5" placeholder="Contoh: Naik kereta api ke rumah Nenek">
+            </div>
+
+            <!-- Pilihan Emosi -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Perasaan / Emosi Fokus</label>
+              <select id="input-emosi" class="form-select rounded-3 p-2.5">
+                <option value="😊 Gembira">😊 Gembira</option>
+                <option value="😢 Sedih">😢 Sedih</option>
+                <option value="😡 Marah">😡 Marah</option>
+                <option value="😨 Takut">😨 Takut</option>
+                <option value="😰 Cemas">😰 Cemas</option>
+                <option value="😴 Penat">😴 Penat</option>
+                <option value="🤩 Teruja">🤩 Teruja</option>
+              </select>
+            </div>
+
+            <!-- Nilai Yang Hendak Ditekankan -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Nilai Yang Hendak Ditekankan</label>
+              <select id="input-nilai" class="form-select rounded-3 p-2.5">
+                <option value="Sabar">Sabar</option>
+                <option value="Berkongsi">Berkongsi</option>
+                <option value="Mendengar arahan">Mendengar arahan</option>
+                <option value="Menunggu giliran" selected>Menunggu giliran</option>
+                <option value="Bersopan">Bersopan</option>
+                <option value="Bertanggungjawab">Bertanggungjawab</option>
+                <option value="Berani mencuba">Berani mencuba</option>
+                <option value="Mengawal emosi">Mengawal emosi</option>
+              </select>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="col-12 mt-4 text-center">
+              <button type="submit" id="btn-generate-submit" class="btn btn-primary btn-lg rounded-pill px-5 py-3 fw-bold shadow w-100">
+                ✨ Generate Story
+              </button>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- 3. VIEW STORY RESULT & DISPLAY -->
+    <section id="view-story-result" class="app-view d-none">
+      
+      <!-- Top Action Controls -->
+      <div class="custom-card p-3 mb-4 no-print">
+        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+          <button onclick="showView('generate')" class="btn btn-outline-secondary btn-sm rounded-pill">
+            <i class="fa-solid fa-arrow-left me-1"></i> Kembali
+          </button>
+          
+          <div class="d-flex flex-wrap gap-2">
+            <button onclick="toggleFavoriteCurrentStory()" id="btn-fav-story" class="btn btn-outline-danger btn-sm rounded-pill">
+              <i class="fa-regular fa-heart me-1"></i> Simpan Favourite
+            </button>
+            <button onclick="readFullStoryTTS()" class="btn btn-warning btn-sm rounded-pill fw-bold">
+              🔊 Baca Cerita
+            </button>
+            <button onclick="window.print()" class="btn btn-outline-primary btn-sm rounded-pill">
+              📄 PDF / 🖨 Cetak
+            </button>
+            <button onclick="shareWhatsApp()" class="btn btn-success btn-sm rounded-pill">
+              📱 WhatsApp
+            </button>
+            <button onclick="shareEmail()" class="btn btn-outline-dark btn-sm rounded-pill">
+              📧 Email
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Printable Story Area -->
+      <div id="printable-story-area">
+        
+        <!-- Story Header -->
+        <div class="custom-card p-4 mb-4 text-center border-start border-5 border-primary">
+          <span class="badge bg-primary rounded-pill mb-2" id="res-badge-situasi">Situasi</span>
+          <h2 class="fw-bold mb-1" id="res-story-title">Cerita Sosial Ali</h2>
+          <small class="text-muted" id="res-story-meta">Untuk Ali (5 tahun) • Emosi: 😊 Gembira • Nilai: Sabar</small>
+        </div>
+
+        <!-- Sentence Cards Container -->
+        <div id="res-sentences-container">
+          <!-- Populated via JS -->
+        </div>
+
+        <!-- FIRST - THEN BOARD -->
+        <div class="custom-card p-4 mb-4 bg-light">
+          <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-arrows-split-up-and-left me-2"></i>First - Then Board</h5>
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="first-then-box">
+                <span class="badge bg-primary rounded-pill mb-2 fs-6">FIRST (Pertama)</span>
+                <h5 class="fw-bold text-dark mb-0" id="res-first-text">Aktiviti Utama</h5>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="first-then-box" style="border-color: var(--accent-green);">
+                <span class="badge bg-success rounded-pill mb-2 fs-6">THEN (Kemudian)</span>
+                <h5 class="fw-bold text-dark mb-0" id="res-then-text">Ganjaran / Aktiviti Seterusnya</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VISUAL SCHEDULE BOARD -->
+        <div class="custom-card p-4 mb-4">
+          <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-list-check me-2"></i>Visual Schedule (Jadual Visual)</h5>
+          <div class="d-flex flex-row overflow-x-auto gap-2 pb-2" id="res-visual-schedule">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+      </div> <!-- End Printable Area -->
+
+      <!-- TOKEN REWARD BOARD -->
+      <div class="custom-card p-4 mb-4 text-center no-print">
+        <h5 class="fw-bold text-primary mb-2">⭐ Papan Ganjaran Bintang (Token Reward)</h5>
+        <p class="text-muted small mb-3">Tekan bintang setiap kali kanak-kanak berjaya mendengar / membaca cerita ini!</p>
+        <div class="d-flex justify-content-center gap-3 mb-2" id="token-stars-container">
+          <i class="fa-solid fa-star star-token" onclick="toggleTokenStar(0)"></i>
+          <i class="fa-solid fa-star star-token" onclick="toggleTokenStar(1)"></i>
+          <i class="fa-solid fa-star star-token" onclick="toggleTokenStar(2)"></i>
+          <i class="fa-solid fa-star star-token" onclick="toggleTokenStar(3)"></i>
+          <i class="fa-solid fa-star star-token" onclick="toggleTokenStar(4)"></i>
+        </div>
+        <div class="fw-bold text-success fs-5 d-none" id="token-congrats">⭐⭐⭐⭐⭐ Tahniah! Syabas Ali!</div>
+      </div>
+
+      <!-- AI BEHAVIOUR TIPS FOR PARENTS & TEACHERS -->
+      <div class="custom-card p-4 mb-4 no-print border-start border-5 border-success">
+        <h5 class="fw-bold text-success mb-3"><i class="fa-solid fa-lightbulb me-2"></i>Panduan & Tips Perilaku AI (Specialist Guidance)</h5>
+        
+        <div class="accordion accordion-flush" id="accordionBehaviorTips">
+          <div class="accordion-item bg-transparent">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#tip1">
+                📌 Cara Memperkenalkan Cerita Ini
+              </button>
+            </h2>
+            <div id="tip1" class="accordion-collapse collapse show" data-bs-parent="#accordionBehaviorTips">
+              <div class="accordion-body text-secondary" id="tip-intro">
+                Baca cerita ini dalam keadaan tenang sebelum situasi sebenar berlaku.
+              </div>
+            </div>
+          </div>
+          
+          <div class="accordion-item bg-transparent">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#tip2">
+                ⏰ Bila Sesuai Dibaca & Kekerapan
+              </button>
+            </h2>
+            <div id="tip2" class="accordion-collapse collapse" data-bs-parent="#accordionBehaviorTips">
+              <div class="accordion-body text-secondary" id="tip-timing">
+                Ulangi 1-2 kali sehari sekurang-kurangnya 3 hari sebelum situasi sebenar.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item bg-transparent">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#tip3">
+                👩‍🏫 Tips Khas Ibu Bapa & Guru Pendidikan Khas
+              </button>
+            </h2>
+            <div id="tip3" class="accordion-collapse collapse" data-bs-parent="#accordionBehaviorTips">
+              <div class="accordion-body text-secondary" id="tip-parent-teacher">
+                Gunakan nada suara yang tenang, elakkan memaksa, dan berikan puji-pujian sejurus tingkah laku sasaran ditunjukkan.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 4. VIEW MY STORIES -->
+    <section id="view-my-stories" class="app-view d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-primary mb-0"><i class="fa-solid fa-book-open me-2"></i>Koleksi Cerita Saya</h4>
+        <button class="btn btn-primary btn-sm rounded-pill" onclick="showView('generate')">
+          <i class="fa-solid fa-plus me-1"></i> Baru
+        </button>
+      </div>
+
+      <!-- Search Input -->
+      <div class="mb-4">
+        <div class="input-group">
+          <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-search text-muted"></i></span>
+          <input type="text" id="input-search-stories" class="form-control border-start-0 ps-0" placeholder="Cari mengikut nama anak, situasi atau tarikh..." onkeyup="filterMyStories()">
+        </div>
+      </div>
+
+      <!-- Story List Container -->
+      <div id="my-stories-container" class="row g-3">
+        <!-- Populated via JS -->
+      </div>
+    </section>
+
+    <!-- 5. VIEW FAVOURITES -->
+    <section id="view-favourites" class="app-view d-none">
+      <h4 class="fw-bold text-danger mb-3"><i class="fa-solid fa-star me-2"></i>Cerita Kegemaran (Favourites)</h4>
+      <div id="favourites-container" class="row g-3">
+        <!-- Populated via JS -->
+      </div>
+    </section>
+
+    <!-- 6. VIEW SETTINGS -->
+    <section id="view-settings" class="app-view d-none">
+      <h4 class="fw-bold text-primary mb-3"><i class="fa-solid fa-gear me-2"></i>Tetapan Aplikasi</h4>
+
+      <div class="custom-card p-4 mb-3">
+        <h6 class="fw-bold mb-3">Visual & Aksesibiliti</h6>
+        
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <div class="fw-bold">Mod Gelap (Dark Mode)</div>
+            <small class="text-muted">Mengurangkan silau mata</small>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input fs-4" type="checkbox" id="setting-dark-switch" onchange="toggleDarkMode()">
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <div class="fw-bold">Mod Mesra Disleksia</div>
+            <small class="text-muted">Guna font mudah baca (Lexend/Comic Sans)</small>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input fs-4" type="checkbox" id="setting-dyslexia-switch" onchange="toggleDyslexiaMode()">
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-bold">Saiz Tulisan</div>
+            <small class="text-muted">Ubah saiz teks keseluruhan aplikasi</small>
+          </div>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-primary" onclick="changeFontSize(14)">Kecil</button>
+            <button class="btn btn-outline-primary active" onclick="changeFontSize(16)">Sedang</button>
+            <button class="btn btn-outline-primary" onclick="changeFontSize(18)">Besar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Gemini API Option -->
+      <div class="custom-card p-4 mb-3">
+        <h6 class="fw-bold mb-2"><i class="fa-solid fa-brain me-2 text-primary"></i>Tetapan AI Kustom (Optional)</h6>
+        <p class="small text-muted mb-3">Secara lalai, aplikasi menggunakan enjin pakar terbina yang pantas. Jika anda mempunyai Google Gemini API Key sendiri, anda boleh mengisinya di sini untuk penjanaan semula jadi AI.</p>
+        <div class="input-group mb-2">
+          <input type="password" id="input-gemini-key" class="form-control" placeholder="Masukkan Gemini API Key...">
+          <button class="btn btn-outline-primary" onclick="saveGeminiApiKey()">Simpan</button>
+        </div>
+        <small id="gemini-key-status" class="text-success font-monospace"></small>
+      </div>
+
+      <!-- Account Info -->
+      <div class="custom-card p-4 mb-3">
+        <h6 class="fw-bold mb-3"><i class="fa-solid fa-user me-2 text-primary"></i>Akaun & Penyelarasan Cloud</h6>
+        <div id="settings-account-info">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- BOTTOM NAVBAR MOBILE -->
+  <nav class="bottom-nav no-print">
+    <button class="nav-btn active" id="nav-home" onclick="showView('home')">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </button>
+    <button class="nav-btn" id="nav-generate" onclick="showView('generate')">
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+      <span>Generate</span>
+    </button>
+    <button class="nav-btn" id="nav-my-stories" onclick="showView('my-stories')">
+      <i class="fa-solid fa-book"></i>
+      <span>Stories</span>
+    </button>
+    <button class="nav-btn" id="nav-favourites" onclick="showView('favourites')">
+      <i class="fa-solid fa-star"></i>
+      <span>Favourite</span>
+    </button>
+    <button class="nav-btn" id="nav-settings" onclick="showView('settings')">
+      <i class="fa-solid fa-gear"></i>
+      <span>Settings</span>
+    </button>
+  </nav>
+
+  <!-- LOGIN / REGISTER MODAL -->
+  <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content custom-card border-0 p-3">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold text-primary"><i class="fa-solid fa-user-lock me-2"></i>Log Masuk / Daftar</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small">Log masuk untuk menyelaraskan Social Story anda di semua peranti (HP & Laptop).</p>
+          <form id="form-auth" onsubmit="handleAuthSubmit(event)">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Alamat Emel</label>
+              <input type="email" id="auth-email" class="form-control rounded-3" required placeholder="nama@gmail.com">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Kata Laluan</label>
+              <input type="password" id="auth-password" class="form-control rounded-3" required placeholder="******">
+            </div>
+            <button type="submit" id="btn-auth-submit" class="btn btn-primary w-100 rounded-pill py-2.5 fw-bold mb-2">
+              Log Masuk / Daftar
+            </button>
+            <button type="button" onclick="loginAnonymously()" class="btn btn-outline-secondary w-100 rounded-pill py-2.5 fw-bold">
+              Teruskan Tanpa Log Masuk (Lokal)
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT SENTENCE TEXT MODAL -->
+  <div class="modal fade" id="editSentenceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content custom-card border-0 p-3">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold text-primary">Sunting Ayat Cerita</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="edit-sentence-index">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Teks Ayat</label>
+            <textarea id="edit-sentence-text" class="form-control rounded-3" rows="3"></textarea>
+          </div>
+          <button type="button" onclick="saveEditedSentence()" class="btn btn-primary w-100 rounded-pill fw-bold">
+            Simpan Perubahan
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/bootstrap.bundle.min.js"></script>
+
+  <!-- JAVASCRIPT LOGIK UTAMA APLIKASI -->
+  <script>
+    // 1. FIREBASE INITIALIZATION
+    const firebaseConfig = {
+      apiKey: "AIzaSyDBQMTyc23M16ihIpQTOZbUhXzpFlTv7OI",
+      authDomain: "social-story-generator-b807a.firebaseapp.com",
+      databaseURL: "https://social-story-generator-b807a-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "social-story-generator-b807a",
+      storageBucket: "social-story-generator-b807a.firebasestorage.app",
+      messagingSenderId: "361478724767",
+      appId: "1:361478724767:web:5b0da6bbc16b70a85896aa"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // App State
+    let currentUser = null;
+    let myStories = [];
+    let currentActiveStory = null;
+    let authModalInstance = null;
+    let editModalInstance = null;
+
+    // 2. INITIALIZATION & AUTH LISTENERS
+    document.addEventListener("DOMContentLoaded", () => {
+      authModalInstance = new bootstrap.Modal(document.getElementById('authModal'));
+      editModalInstance = new bootstrap.Modal(document.getElementById('editSentenceModal'));
+
+      // Load local data
+      loadLocalStories();
+
+      // Firebase Auth Listener
+      auth.onAuthStateChanged(user => {
+        currentUser = user;
+        updateAuthUI();
+        if (user) {
+          syncStoriesFromFirebase();
+        }
+      });
+
+      // Register PWA Service Worker Inline
+      registerPwaServiceWorker();
+
+      // Load Gemini API Key status if exists
+      const savedKey = localStorage.getItem('gemini_api_key');
+      if (savedKey) {
+        document.getElementById('input-gemini-key').value = savedKey;
+        document.getElementById('gemini-key-status').innerText = '✓ API Key tersimpan';
+      }
+    });
+
+    // 3. PWA SERVICE WORKER DYNAMIC REGISTRATION
+    function registerPwaServiceWorker() {
+      if ('serviceWorker' in navigator) {
+        const swCode = `
+          const CACHE_NAME = 'social-story-v1';
+          self.addEventListener('install', e => {
+            e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
+          });
+          self.addEventListener('fetch', e => {
+            e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+          });
+        `;
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(swUrl).catch(err => console.log('SW register fail:', err));
+      }
+    }
+
+    // 4. NAVIGATION & VIEWS
+    function showView(viewId) {
+      document.querySelectorAll('.app-view').forEach(el => el.classList.add('d-none'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+      const targetView = document.getElementById(`view-${viewId}`);
+      if (targetView) targetView.classList.remove('d-none');
+
+      const targetNav = document.getElementById(`nav-${viewId}`);
+      if (targetNav) targetNav.classList.add('active');
+
+      if (viewId === 'home') renderHomeRecentStories();
+      if (viewId === 'my-stories') renderMyStories();
+      if (viewId === 'favourites') renderFavourites();
+
+      window.scrollTo(0, 0);
+    }
+
+    // 5. AUTHENTICATION LOGIC
+    function updateAuthUI() {
+      const headerContainer = document.getElementById('auth-header-btn');
+      const settingsAccount = document.getElementById('settings-account-info');
+
+      if (currentUser && !currentUser.isAnonymous) {
+        headerContainer.innerHTML = `
+          <button class="btn btn-light btn-sm rounded-pill font-monospace" onclick="showView('settings')">
+            <i class="fa-solid fa-circle-user me-1 text-success"></i>${currentUser.email.split('@')[0]}
+          </button>
+        `;
+        settingsAccount.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="fw-bold">${currentUser.email}</div>
+              <small class="text-success"><i class="fa-solid fa-cloud-check me-1"></i>Terselaras dengan Firebase Cloud</small>
+            </div>
+            <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="logoutUser()">Log Keluar</button>
+          </div>
+        `;
+      } else {
+        headerContainer.innerHTML = `
+          <button class="btn btn-primary btn-sm rounded-pill fw-bold" onclick="openAuthModal()">
+            <i class="fa-solid fa-right-to-bracket me-1"></i>Log Masuk
+          </button>
+        `;
+        settingsAccount.innerHTML = `
+          <p class="text-muted mb-2">Anda sedang menggunakan akaun Luar Talian (Lokal).</p>
+          <button class="btn btn-primary btn-sm rounded-pill fw-bold" onclick="openAuthModal()">
+            Log Masuk / Daftar Untuk Sync Cloud
+          </button>
+        `;
+      }
+    }
+
+    function openAuthModal() {
+      authModalInstance.show();
+    }
+
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value;
+      const pass = document.getElementById('auth-password').value;
+
+      auth.signInWithEmailAndPassword(email, pass)
+        .then(() => {
+          authModalInstance.hide();
+        })
+        .catch(err => {
+          if (err.code === 'auth/user-not-found') {
+            auth.createUserWithEmailAndPassword(email, pass).then(() => authModalInstance.hide());
+          } else {
+            alert('Ralat Log Masuk: ' + err.message);
+          }
+        });
+    }
+
+    function loginAnonymously() {
+      authModalInstance.hide();
+    }
+
+    function logoutUser() {
+      auth.signOut().then(() => updateAuthUI());
+    }
+
+    // 6. CLINICAL SOCIAL STORY GENERATOR ENGINE (CAROL GRAY ASD CRITERIA)
+    function handleGenerateStory(e) {
+      e.preventDefault();
+
+      const nama = document.getElementById('input-nama').value.trim() || 'Ali';
+      const umur = document.getElementById('input-umur').value;
+      const bahasa = document.getElementById('input-bahasa').value;
+      const tahap = document.getElementById('input-tahap').value;
+      const panjang = document.getElementById('input-panjang').value;
+      
+      let situasi = document.getElementById('input-situasi-select').value;
+      if (situasi === 'CUSTOM') {
+        situasi = document.getElementById('input-situasi-custom').value.trim() || 'Aktiviti Harian';
+      }
+
+      const emosi = document.getElementById('input-emosi').value;
+      const nilai = document.getElementById('input-nilai').value;
+
+      const submitBtn = document.getElementById('btn-generate-submit');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menjana Cerita Khas...';
+
+      // Check if user set Gemini API Key
+      const geminiKey = localStorage.getItem('gemini_api_key');
+      if (geminiKey) {
+        generateWithGeminiAPI(geminiKey, { nama, umur, bahasa, tahap, panjang, situasi, emosi, nilai })
+          .then(storyData => {
+            renderStoryResult(storyData);
+          })
+          .catch(err => {
+            console.warn('Gemini API fail, fallback to Clinical Rule Engine:', err);
+            const storyData = generateClinicalSocialStory({ nama, umur, bahasa, tahap, panjang, situasi, emosi, nilai });
+            renderStoryResult(storyData);
+          })
+          .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '✨ Generate Story';
+          });
+      } else {
+        setTimeout(() => {
+          const storyData = generateClinicalSocialStory({ nama, umur, bahasa, tahap, panjang, situasi, emosi, nilai });
+          renderStoryResult(storyData);
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '✨ Generate Story';
+        }, 800);
+      }
+    }
+
+    function toggleCustomSituation(val) {
+      const container = document.getElementById('custom-situation-container');
+      if (val === 'CUSTOM') {
+        container.classList.remove('d-none');
+      } else {
+        container.classList.add('d-none');
+      }
+    }
+
+    // Expert Clinical Template Engine for Speech Therapists / Special Ed
+    function generateClinicalSocialStory(params) {
+      const { nama, umur, bahasa, situasi, emosi, nilai } = params;
+      const isBm = bahasa === 'BM';
+
+      let sentences = [];
+      let visualSteps = [];
+      let firstThen = { first: '', then: '' };
+
+      // Base Dictionary based on Situation
+      if (isBm) {
+        sentences = [
+          `Nama saya ${nama}. Saya berumur ${umur}.`,
+          `Kadang-kadang, saya perlu ${situasi.toLowerCase()}.`,
+          `Apabila ${situasi.toLowerCase()}, tempat ini mungkin sibuk dan bising.`,
+          `Ibu dan guru saya akan sentiasa berada di sisi saya.`,
+          `Saya boleh merasa ${emosi}. Ini adalah perasaan yang normal.`,
+          `Bila saya berasa cemas, saya boleh tarik nafas dalam-dalam.`,
+          `Saya akan cuba untuk ${nilai.toLowerCase()} dan mendengar arahan.`,
+          `Ibu bapa dan guru berasa sangat gembira apabila saya tenang.`,
+          `Selepas selesai ${situasi.toLowerCase()}, saya boleh bermain mainan kegemaran saya.`,
+          `Saya berasa bangga dengan diri saya kerana saya anak yang hebat!`
+        ];
+
+        firstThen = {
+          first: `${situasi}`,
+          then: `Bermain / Berehat`
+        };
+
+        visualSteps = [
+          `1. Bersedia`,
+          `2. ${situasi}`,
+          `3. ${nilai}`,
+          `4. Selesai & Dipuji`
+        ];
+      } else {
+        sentences = [
+          `My name is ${nama}. I am ${umur} old.`,
+          `Sometimes, I need to go for ${situasi.toLowerCase()}.`,
+          `When I am doing ${situasi.toLowerCase()}, it might be loud or busy.`,
+          `My parents and teachers are here to help me stay safe.`,
+          `It is okay if I feel ${emosi}. Everyone feels this way sometimes.`,
+          `I can take 3 deep breaths to calm my body.`,
+          `I will practice to ${nilai.toLowerCase()} and follow instructions.`,
+          `My family is very proud when I try my best.`,
+          `When ${situasi.toLowerCase()} is finished, I get to enjoy my reward.`,
+          `I am a brave and awesome child!`
+        ];
+
+        firstThen = {
+          first: `${situasi}`,
+          then: `Free Play / Rest`
+        };
+
+        visualSteps = [
+          `1. Get Ready`,
+          `2. ${situasi}`,
+          `3. Stay Calm`,
+          `4. Done & Reward`
+        ];
+      }
+
+      // Generate cartoon avatar / illustration for each sentence
+      const sentenceItems = sentences.map((st, idx) => ({
+        id: 's_' + Date.now() + '_' + idx,
+        text: st,
+        img: getCartoonIllustrationUrl(situasi, idx)
+      }));
+
+      return {
+        id: 'story_' + Date.now(),
+        createdAt: new Date().toISOString().split('T')[0],
+        nama,
+        umur,
+        bahasa,
+        situasi,
+        emosi,
+        nilai,
+        sentences: sentenceItems,
+        firstThen,
+        visualSteps,
+        isFav: false,
+        tips: getBehaviorTips(situasi, nilai, isBm)
+      };
+    }
+
+    function getCartoonIllustrationUrl(situasi, index) {
+      // DiceBear / Unsplash SVG vector cartoon seeds based on situation keyword
+      const keyword = encodeURIComponent(situasi);
+      return `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${keyword}_${index}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
+    }
+
+    function getBehaviorTips(situasi, nilai, isBm) {
+      if (isBm) {
+        return {
+          intro: `Kenalkan cerita ini semasa ${situasi} dalam keadaan tenang di rumah. Elakkan membacanya ketika anak sedang tantrum.`,
+          timing: `Baca sekurang-kurangnya 2 kali sehari (Pagi dan Sebelum Tidur) selama 3-5 hari sebelum ${situasi} berlaku.`,
+          parentTeacher: `Beri peneguhan positif (puji & bintang) sejurus anak menunjukkan amalan '${nilai}' semasa situasi sebenar.`
+        };
+      } else {
+        return {
+          intro: `Introduce this story during calm moments before ${situasi}. Avoid reading when child is overwhelmed.`,
+          timing: `Read 2 times daily (Morning & Bedtime) for 3-5 days leading up to ${situasi}.`,
+          parentTeacher: `Give immediate verbal praise and stars when child practices '${nilai}'.`
+        };
+      }
+    }
+
+    // Gemini API Direct Integration
+    async function generateWithGeminiAPI(apiKey, params) {
+      const prompt = `You are a Senior Speech Therapist and Special Education Specialist for Autism (ASD). 
+Create a Carol Gray style Social Story in JSON format for a child named ${params.nama}, age ${params.umur}, language ${params.bahasa}.
+Situation: ${params.situasi}. Emotion: ${params.emosi}. Focus Value: ${params.nilai}.
+Output strictly valid JSON with this exact schema:
+{
+  "sentences": ["sentence 1", "sentence 2", "sentence 3", "sentence 4", "sentence 5"],
+  "firstThen": {"first": "activity", "then": "reward"},
+  "visualSteps": ["Step 1", "Step 2", "Step 3", "Step 4"]
+}`;
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }]
+        })
+      });
+
+      const data = await res.json();
+      const rawText = data.candidates[0].content.parts[0].text;
+      const cleanJson = JSON.parse(rawText.replace(/```json|```/g, '').trim());
+
+      return {
+        id: 'story_' + Date.now(),
+        createdAt: new Date().toISOString().split('T')[0],
+        nama: params.nama,
+        umur: params.umur,
+        bahasa: params.bahasa,
+        situasi: params.situasi,
+        emosi: params.emosi,
+        nilai: params.nilai,
+        sentences: cleanJson.sentences.map((st, idx) => ({
+          id: 's_' + Date.now() + '_' + idx,
+          text: st,
+          img: getCartoonIllustrationUrl(params.situasi, idx)
+        })),
+        firstThen: cleanJson.firstThen,
+        visualSteps: cleanJson.visualSteps,
+        isFav: false,
+        tips: getBehaviorTips(params.situasi, params.nilai, params.bahasa === 'BM')
+      };
+    }
+
+    // 7. RENDER STORY RESULT TO UI
+    function renderStoryResult(story) {
+      currentActiveStory = story;
+
+      document.getElementById('res-story-title').innerText = `Cerita Sosial ${story.nama}`;
+      document.getElementById('res-badge-situasi').innerText = story.situasi;
+      document.getElementById('res-story-meta').innerText = `Untuk ${story.nama} (${story.umur}) • Emosi: ${story.emosi} • Nilai: ${story.nilai}`;
+
+      // Sentences Cards
+      const container = document.getElementById('res-sentences-container');
+      container.innerHTML = '';
+
+      story.sentences.forEach((s, idx) => {
+        const cardHtml = `
+          <div class="sentence-card">
+            <div class="sentence-img-container">
+              <img src="${s.img}" class="sentence-img" id="img_elem_${idx}">
+              <div class="position-absolute top-0 end-0 p-2 no-print">
+                <input type="file" id="file_input_${idx}" class="d-none" accept="image/*" onchange="uploadCustomImage(event, ${idx})">
+                <button class="btn btn-sm btn-light rounded-circle shadow" onclick="document.getElementById('file_input_${idx}').click()" title="Ganti Gambar">
+                  <i class="fa-solid fa-camera"></i>
+                </button>
+              </div>
+            </div>
+            <div class="p-3 d-flex justify-content-between align-items-center">
+              <span class="fs-5 fw-bold text-dark me-2">${s.text}</span>
+              <div class="d-flex gap-1 no-print">
+                <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="speakSentenceText('${s.text.replace(/'/g, "\\'")}')">
+                  <i class="fa-solid fa-volume-high"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openEditModal(${idx})">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger rounded-circle" onclick="deleteSentence(${idx})">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', cardHtml);
+      });
+
+      // First-Then
+      document.getElementById('res-first-text').innerText = story.firstThen.first;
+      document.getElementById('res-then-text').innerText = story.firstThen.then;
+
+      // Visual Schedule
+      const schedContainer = document.getElementById('res-visual-schedule');
+      schedContainer.innerHTML = '';
+      story.visualSteps.forEach(step => {
+        schedContainer.insertAdjacentHTML('beforeend', `<div class="schedule-chip"><i class="fa-solid fa-circle-check"></i>${step}</div>`);
+      });
+
+      // Tips
+      document.getElementById('tip-intro').innerText = story.tips.intro;
+      document.getElementById('tip-timing').innerText = story.tips.timing;
+      document.getElementById('tip-parent-teacher').innerText = story.tips.parentTeacher;
+
+      // Reset Token Star
+      resetTokenStars();
+
+      // Auto save story
+      saveStoryToStorage(story);
+
+      showView('story-result');
+    }
+
+    // 8. STORY EDITING & CUSTOM IMAGE UPLOAD
+    function uploadCustomImage(event, index) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const base64Img = e.target.result;
+          currentActiveStory.sentences[index].img = base64Img;
+          document.getElementById(`img_elem_${index}`).src = base64Img;
+          saveStoryToStorage(currentActiveStory);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function openEditModal(index) {
+      document.getElementById('edit-sentence-index').value = index;
+      document.getElementById('edit-sentence-text').value = currentActiveStory.sentences[index].text;
+      editModalInstance.show();
+    }
+
+    function saveEditedSentence() {
+      const index = parseInt(document.getElementById('edit-sentence-index').value);
+      const newText = document.getElementById('edit-sentence-text').value.trim();
+      if (newText && currentActiveStory) {
+        currentActiveStory.sentences[index].text = newText;
+        renderStoryResult(currentActiveStory);
+        editModalInstance.hide();
+      }
+    }
+
+    function deleteSentence(index) {
+      if (currentActiveStory && currentActiveStory.sentences.length > 1) {
+        currentActiveStory.sentences.splice(index, 1);
+        renderStoryResult(currentActiveStory);
+      } else {
+        alert('Cerita mestilah mengandungi sekurang-kurangnya 1 ayat.');
+      }
+    }
+
+    // 9. TEXT-TO-SPEECH (TTS) AUDIO
+    function speakSentenceText(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = currentActiveStory && currentActiveStory.bahasa === 'EN' ? 'en-US' : 'ms-MY';
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+      } else {
+        alert('Fungsi suara tidak disokong oleh pelayar anda.');
+      }
+    }
+
+    function readFullStoryTTS() {
+      if (currentActiveStory) {
+        const fullText = currentActiveStory.sentences.map(s => s.text).join('. ');
+        speakSentenceText(fullText);
+      }
+    }
+
+    // 10. TOKEN REWARD SYSTEM (5 STARS WITH CONFETTI)
+    let starStates = [false, false, false, false, false];
+
+    function toggleTokenStar(index) {
+      starStates[index] = !starStates[index];
+      const stars = document.querySelectorAll('#token-stars-container .star-token');
+
+      stars.forEach((star, i) => {
+        if (i <= index) {
+          star.classList.add('active');
+        } else {
+          star.classList.remove('active');
+        }
+      });
+
+      if (index === 4) {
+        document.getElementById('token-congrats').classList.remove('d-none');
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      } else {
+        document.getElementById('token-congrats').classList.add('d-none');
+      }
+    }
+
+    function resetTokenStars() {
+      starStates = [false, false, false, false, false];
+      document.querySelectorAll('#token-stars-container .star-token').forEach(s => s.classList.remove('active'));
+      document.getElementById('token-congrats').classList.add('d-none');
+    }
+
+    // 11. STORAGE & FIREBASE CLOUD SYNC
+    function saveStoryToStorage(story) {
+      const existingIdx = myStories.findIndex(s => s.id === story.id);
+      if (existingIdx >= 0) {
+        myStories[existingIdx] = story;
+      } else {
+        myStories.unshift(story);
+      }
+
+      localStorage.setItem('my_social_stories', JSON.stringify(myStories));
+
+      // Sync to Firebase if logged in
+      if (currentUser && !currentUser.isAnonymous) {
+        db.ref(`users/${currentUser.uid}/stories/${story.id}`).set(story);
+      }
+    }
+
+    function loadLocalStories() {
+      const data = localStorage.getItem('my_social_stories');
+      if (data) {
+        try {
+          myStories = JSON.parse(data);
+        } catch(e) {
+          myStories = [];
+        }
+      }
+    }
+
+    function syncStoriesFromFirebase() {
+      if (currentUser) {
+        db.ref(`users/${currentUser.uid}/stories`).once('value', snapshot => {
+          const val = snapshot.val();
+          if (val) {
+            const cloudStories = Object.values(val);
+            myStories = cloudStories;
+            localStorage.setItem('my_social_stories', JSON.stringify(myStories));
+            renderHomeRecentStories();
+          }
+        });
+      }
+    }
+
+    function toggleFavoriteCurrentStory() {
+      if (currentActiveStory) {
+        currentActiveStory.isFav = !currentActiveStory.isFav;
+        saveStoryToStorage(currentActiveStory);
+
+        const btn = document.getElementById('btn-fav-story');
+        if (currentActiveStory.isFav) {
+          btn.innerHTML = '<i class="fa-solid fa-heart me-1"></i> Kegemaran';
+          btn.className = 'btn btn-danger btn-sm rounded-pill';
+        } else {
+          btn.innerHTML = '<i class="fa-regular fa-heart me-1"></i> Simpan Favourite';
+          btn.className = 'btn btn-outline-danger btn-sm rounded-pill';
+        }
+      }
+    }
+
+    // 12. RENDER MY STORIES & FAVOURITES VIEWS
+    function renderHomeRecentStories() {
+      const container = document.getElementById('home-recent-stories');
+      container.innerHTML = '';
+
+      const recents = myStories.slice(0, 2);
+      if (recents.length === 0) {
+        container.innerHTML = '<div class="col-12 text-center text-muted py-3">Tiada cerita tersimpan lagi. Tekan "Cipta Cerita Sekarang" untuk bermula.</div>';
+        return;
+      }
+
+      recents.forEach(story => {
+        container.insertAdjacentHTML('beforeend', createStoryCardHtml(story));
+      });
+    }
+
+    function renderMyStories() {
+      const container = document.getElementById('my-stories-container');
+      container.innerHTML = '';
+
+      if (myStories.length === 0) {
+        container.innerHTML = '<div class="col-12 text-center text-muted py-5">Koleksi cerita kosong.</div>';
+        return;
+      }
+
+      myStories.forEach(story => {
+        container.insertAdjacentHTML('beforeend', createStoryCardHtml(story));
+      });
+    }
+
+    function renderFavourites() {
+      const container = document.getElementById('favourites-container');
+      container.innerHTML = '';
+
+      const favs = myStories.filter(s => s.isFav);
+      if (favs.length === 0) {
+        container.innerHTML = '<div class="col-12 text-center text-muted py-5">Tiada cerita kegemaran ditandakan lagi.</div>';
+        return;
+      }
+
+      favs.forEach(story => {
+        container.insertAdjacentHTML('beforeend', createStoryCardHtml(story));
+      });
+    }
+
+    function createStoryCardHtml(story) {
+      return `
+        <div class="col-md-6">
+          <div class="custom-card p-3 d-flex justify-content-between align-items-center">
+            <div>
+              <span class="badge bg-primary rounded-pill mb-1">${story.situasi}</span>
+              <h6 class="fw-bold mb-1">Cerita Sosial ${story.nama}</h6>
+              <small class="text-muted">${story.createdAt} • ${story.sentences.length} Ayat</small>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary btn-sm rounded-circle" onclick="loadAndDisplayStory('${story.id}')" title="Buka">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <button class="btn btn-outline-danger btn-sm rounded-circle" onclick="deleteStoryFromStorage('${story.id}')" title="Padam">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function loadAndDisplayStory(storyId) {
+      const target = myStories.find(s => s.id === storyId);
+      if (target) {
+        renderStoryResult(target);
+      }
+    }
+
+    function deleteStoryFromStorage(storyId) {
+      if (confirm('Adakah anda pasti mahu memadam cerita ini?')) {
+        myStories = myStories.filter(s => s.id !== storyId);
+        localStorage.setItem('my_social_stories', JSON.stringify(myStories));
+
+        if (currentUser && !currentUser.isAnonymous) {
+          db.ref(`users/${currentUser.uid}/stories/${storyId}`).remove();
+        }
+
+        renderMyStories();
+        renderHomeRecentStories();
+      }
+    }
+
+    function filterMyStories() {
+      const q = document.getElementById('input-search-stories').value.toLowerCase();
+      const filtered = myStories.filter(s => 
+        s.nama.toLowerCase().includes(q) || 
+        s.situasi.toLowerCase().includes(q) ||
+        s.createdAt.includes(q)
+      );
+
+      const container = document.getElementById('my-stories-container');
+      container.innerHTML = '';
+      filtered.forEach(story => {
+        container.insertAdjacentHTML('beforeend', createStoryCardHtml(story));
+      });
+    }
+
+    // 13. SHARING & EXPORTING
+    function shareWhatsApp() {
+      if (currentActiveStory) {
+        const text = `*Cerita Sosial ASD: ${currentActiveStory.nama}*\nSituasi: ${currentActiveStory.situasi}\n\n` + 
+          currentActiveStory.sentences.map((s, idx) => `${idx + 1}. ${s.text}`).join('\n') +
+          `\n\nDihasilkan melalui My Social Story Generator App.`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+      }
+    }
+
+    function shareEmail() {
+      if (currentActiveStory) {
+        const subject = `Cerita Sosial ASD - ${currentActiveStory.nama} (${currentActiveStory.situasi})`;
+        const body = currentActiveStory.sentences.map((s, idx) => `${idx + 1}. ${s.text}`).join('\n\n');
+        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      }
+    }
+
+    // 14. SETTINGS & TOGGLES
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      document.getElementById('setting-dark-switch').checked = isDark;
+      document.getElementById('dark-icon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    }
+
+    function toggleDyslexiaMode() {
+      document.body.classList.toggle('dyslexia-font');
+      const isDyslexia = document.body.classList.contains('dyslexia-font');
+      document.getElementById('setting-dyslexia-switch').checked = isDyslexia;
+    }
+
+    function changeFontSize(sizePx) {
+      document.documentElement.style.setProperty('--base-font-size', sizePx + 'px');
+    }
+
+    function saveGeminiApiKey() {
+      const key = document.getElementById('input-gemini-key').value.trim();
+      if (key) {
+        localStorage.setItem('gemini_api_key', key);
+        document.getElementById('gemini-key-status').innerText = '✓ API Key tersimpan';
+        alert('Gemini API Key telah berjaya disimpan!');
+      } else {
+        localStorage.removeItem('gemini_api_key');
+        document.getElementById('gemini-key-status').innerText = '';
+      }
+    }
+  </script>
+</body>
+</html>
