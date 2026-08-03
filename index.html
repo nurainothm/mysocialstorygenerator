@@ -532,7 +532,7 @@
         <div class="fw-bold text-success fs-5 d-none" id="token-congrats">⭐⭐⭐⭐⭐ Tahniah! Syabas Atas Usaha Baik Ini!</div>
       </div>
 
-      <!-- AI BEHAVIOUR TIPS (BAHASA MELAYU BAKU & LENGKAP) -->
+      <!-- AI BEHAVIOUR TIPS -->
       <div class="custom-card p-4 mb-4 no-print border-start border-5 border-success">
         <h5 class="fw-bold text-success mb-3"><i class="fa-solid fa-lightbulb me-2"></i>Panduan Bimbingan Tingkah Laku Khas (Pakar ASD)</h5>
         
@@ -697,7 +697,7 @@
         <div class="modal-body">
           <input type="hidden" id="edit-sentence-index">
           <div class="mb-3">
-            <label class="form-label fw-bold">Teks Ayat</label>
+            <label class="form-label fw-bold">Teks Ayat Baharu</label>
             <textarea id="edit-sentence-text" class="form-control rounded-3" rows="3"></textarea>
           </div>
           <button type="button" onclick="saveEditedSentence()" class="btn btn-primary w-100 rounded-pill fw-bold">
@@ -713,7 +713,7 @@
 
   <!-- SCRIPT LOGIK APLIKASI -->
   <script>
-    // 1. FIREBASE CONFIGURATION (APP ID DENGAN APP ID BAHARU)
+    // 1. FIREBASE CONFIGURATION
     const firebaseConfig = {
       apiKey: "AIzaSyDBQMTyc23M16ihIpQTOZbUhXzpFlTv7OI",
       authDomain: "social-story-generator-b807a.firebaseapp.com",
@@ -732,14 +732,27 @@
     let currentUser = null;
     let myStories = [];
     let currentActiveStory = null;
-    let editModalInstance = null;
-    let authMode = 'login'; // 'login' or 'register'
+    let availableVoices = [];
+    let authMode = 'login';
+
+    // MEMUATKAN SUARA TTS UNTUK MENGELAKKAN ACCENT INGGERIS
+    function populateVoices() {
+      if ('speechSynthesis' in window) {
+        availableVoices = window.speechSynthesis.getVoices();
+      }
+    }
+
+    if ('speechSynthesis' in window) {
+      populateVoices();
+      if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = populateVoices;
+      }
+    }
 
     document.addEventListener("DOMContentLoaded", () => {
-      editModalInstance = new bootstrap.Modal(document.getElementById('editSentenceModal'));
       loadLocalStories();
 
-      // Check Local Session First
+      // Semak Sesi Tempatan Dulu
       const savedUser = localStorage.getItem('user_session');
       if (savedUser) {
         try {
@@ -768,7 +781,7 @@
       });
     });
 
-    // 2. AUTHENTICATION LOGIC (HYBRID FIREBASE + LOCAL FALLBACK)
+    // 2. AUTHENTICATION LOGIC
     function switchAuthTab(mode) {
       authMode = mode;
       const btnLogin = document.getElementById('tab-btn-login');
@@ -1147,7 +1160,7 @@
         return {
           intro: `Sediakan persekitaran yang tenang dan bebas daripada gangguan gajet atau bunyi bising. Bacakan cerita ini bersama ${nama} semasa beliau dalam keadaan selesa dan tenang. Elakkan memaksa atau membaca cerita ini ketika anak sedang gelisah atau mengamuk. Duduk di sebelah ${nama} dan tunjukkan setiap gambar ilustrasi satu demi satu secara perlahan.`,
           timing: `Bacakan cerita ini sebanyak 2 hingga 3 kali sehari (waktu terbaik ialah sejurus selepas bangun pagi dan sebelum tidur malam). Amalkan pembacaan berterusan selama 3 hingga 5 hari berturut-turut sebelum aktiviti ${situasi.toLowerCase()} dijalankan. Pengulangan yang konsisten amat penting untuk membina ingatan sosial dan kefahaman rutin anak.`,
-          followUp: `Sebaik sahaja selesai membaca, tunjukkan Papan "Pertama - Kemudian" dan Papan Bintang Ganjaran. Berikan pujian spesifik seperti: "Bagus ${nama} sebab dapat duduk tenang dan mendengar cerita!" Lakonkan semula (*role-play*) situasi ${situasi.toLowerCase()} menggunakan mainan atau patung jika perlu.`,
+          followUp: `Sebaik sahaja selesai membaca, tunjukkan Papan "Pertama - Kemudian" dan Papan Bintang Ganjaran. Berikan pujian spesifik seperti: "Bagus ${nama} sebab dapat duduk tenang dan mendengar cerita!" Lakonkan semula situasi ${situasi.toLowerCase()} menggunakan mainan atau patung jika perlu.`,
           parentTeacher: `Bagi ibu bapa dan guru: Bimbing anak memberikan fokus kepada amalan '${nilai.toLowerCase()}'. Semasa situasi ${situasi.toLowerCase()} sebenar berlaku, ingatkan ${nama} secara lembut menggunakan kata kunci ringkas daripada cerita (contohnya: "${nama}, ingat cerita kita? Mari kita ${nilai.toLowerCase()}"). Berikan pujian lisan atau bintang ganjaran serta-merta apabila anak menunjukkan tingkah laku yang ditekankan.`
         };
       } else {
@@ -1186,13 +1199,13 @@
             <div class="p-3 d-flex justify-content-between align-items-center">
               <span class="fs-5 fw-bold text-dark me-2">${s.text}</span>
               <div class="d-flex gap-1 no-print">
-                <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="speakSentenceText('${s.text.replace(/'/g, "\\'")}')">
+                <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="speakSentenceText('${s.text.replace(/'/g, "\\'")}')" title="Sebut Ayat">
                   <i class="fa-solid fa-volume-high"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openEditModal(${idx})">
+                <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openEditModal(${idx})" title="Sunting Ayat">
                   <i class="fa-solid fa-pen"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-danger rounded-circle" onclick="deleteSentence(${idx})">
+                <button class="btn btn-sm btn-outline-danger rounded-circle" onclick="deleteSentence(${idx})" title="Padam Ayat">
                   <i class="fa-solid fa-trash"></i>
                 </button>
               </div>
@@ -1222,7 +1235,7 @@
       showView('story-result');
     }
 
-    // 6. EDITING & CUSTOM IMAGE UPLOAD
+    // 6. EDITING & CUSTOM IMAGE UPLOAD (SUNTINGAN AYAT DIPERBAIKI)
     function uploadCustomImage(event, index) {
       const file = event.target.files[0];
       if (file) {
@@ -1238,18 +1251,35 @@
     }
 
     function openEditModal(index) {
+      if (!currentActiveStory || !currentActiveStory.sentences[index]) return;
+
       document.getElementById('edit-sentence-index').value = index;
       document.getElementById('edit-sentence-text').value = currentActiveStory.sentences[index].text;
-      editModalInstance.show();
+
+      const modalEl = document.getElementById('editSentenceModal');
+      let modalInstance = bootstrap.Modal.getInstance(modalEl);
+      if (!modalInstance) {
+        modalInstance = new bootstrap.Modal(modalEl);
+      }
+      modalInstance.show();
     }
 
     function saveEditedSentence() {
-      const index = parseInt(document.getElementById('edit-sentence-index').value);
+      const indexInput = document.getElementById('edit-sentence-index').value;
+      const index = parseInt(indexInput, 10);
       const newText = document.getElementById('edit-sentence-text').value.trim();
-      if (newText && currentActiveStory) {
+
+      if (!isNaN(index) && newText && currentActiveStory && currentActiveStory.sentences[index]) {
         currentActiveStory.sentences[index].text = newText;
+        
+        saveStoryToStorage(currentActiveStory);
         renderStoryResult(currentActiveStory);
-        editModalInstance.hide();
+
+        const modalEl = document.getElementById('editSentenceModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) {
+          modalInstance.hide();
+        }
       }
     }
 
@@ -1262,15 +1292,50 @@
       }
     }
 
-    // 7. TEXT-TO-SPEECH (TTS) AUDIO
+    // 7. TEXT-TO-SPEECH (TTS) AUDIO (HILANGKAN ACCENT INGGERIS)
     function speakSentenceText(text) {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = currentActiveStory && currentActiveStory.bahasa === 'EN' ? 'en-US' : 'ms-MY';
-        utterance.rate = 0.9;
-        window.speechSynthesis.speak(utterance);
+      if (!('speechSynthesis' in window)) {
+        alert('Fungsi suara tidak disokong oleh pelayar anda.');
+        return;
       }
+
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      const isEn = currentActiveStory && currentActiveStory.bahasa === 'EN';
+
+      if (availableVoices.length === 0) {
+        availableVoices = window.speechSynthesis.getVoices();
+      }
+
+      if (isEn) {
+        utterance.lang = 'en-US';
+        const enVoice = availableVoices.find(v => v.lang.toLowerCase().includes('en'));
+        if (enVoice) utterance.voice = enVoice;
+      } else {
+        // Cari Suara Bahasa Melayu (ms-MY) Dahulu
+        utterance.lang = 'ms-MY';
+        let targetVoice = availableVoices.find(v => 
+          v.lang.toLowerCase().includes('ms') || 
+          v.lang.toLowerCase().includes('melayu') ||
+          v.name.toLowerCase().includes('malay')
+        );
+
+        // Pengganti: Jika peranti tiada BM, gunakan Bahasa Indonesia (id-ID) mengelakkan accent Inggeris
+        if (!targetVoice) {
+          targetVoice = availableVoices.find(v => 
+            v.lang.toLowerCase().includes('id') || 
+            v.name.toLowerCase().includes('indonesia')
+          );
+        }
+
+        if (targetVoice) {
+          utterance.voice = targetVoice;
+        }
+      }
+
+      utterance.rate = 0.85;
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
     }
 
     function readFullStoryTTS() {
