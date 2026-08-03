@@ -126,7 +126,7 @@
       background-color: var(--light-blue);
     }
 
-    /* KAD & FRAME GAMBAR DIPERBAIKI (AUTO-FIT & HAD LEBAR) */
+    /* REKABENTUK KAD GAMBAR AUTO-FIT */
     .sentence-card {
       background-color: var(--card-bg);
       border: 2px solid var(--border-color);
@@ -145,9 +145,9 @@
       position: relative;
       background-color: #f1f5f9;
       width: 100%;
-      max-width: 500px; /* Menghadkan lebar supaya gambar tidak terlalu lebar */
-      height: 260px; /* Saiz tinggi ideal untuk kad cerita */
-      margin: 0 auto; /* Memusatkan frame gambar */
+      max-width: 500px;
+      height: 260px;
+      margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -163,7 +163,7 @@
     .sentence-img {
       width: 100%;
       height: 100%;
-      object-fit: contain; /* AUTO-FIT GAMBAR TANPA PENYEK ATAU TERPOTONG */
+      object-fit: contain;
       object-position: center;
       padding: 4px;
       transition: transform 0.3s ease;
@@ -171,27 +171,6 @@
 
     .sentence-card:hover .sentence-img {
       transform: scale(1.02);
-    }
-
-    .schedule-chip {
-      background-color: var(--light-blue);
-      color: var(--primary-blue);
-      border: 2px solid var(--primary-blue);
-      border-radius: 1rem;
-      padding: 0.75rem 1rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      white-space: nowrap;
-    }
-
-    .first-then-box {
-      border: 3px dashed var(--primary-blue);
-      border-radius: 1.25rem;
-      padding: 1.25rem;
-      background-color: var(--card-bg);
-      text-align: center;
     }
 
     .star-token {
@@ -320,9 +299,9 @@
         </div>
         <div class="col-6 col-md-3">
           <div class="custom-card p-3 text-center">
-            <i class="fa-solid fa-pen-to-square fs-3 text-info mb-2"></i>
-            <h6 class="fw-bold mb-0">Boleh Sunting</h6>
-            <small class="text-muted">Ayat Sendiri</small>
+            <i class="fa-solid fa-up-down-left-right fs-3 text-info mb-2"></i>
+            <h6 class="fw-bold mb-0">Ubah Susunan</h6>
+            <small class="text-muted">Gerak Ayat-Ayat</small>
           </div>
         </div>
       </div>
@@ -512,7 +491,7 @@
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-3 no-print">
-          <div class="text-muted small"><i class="fa-solid fa-info-circle me-1"></i>Tekan ikon ✏️ pada mana-mana kad untuk menyunting ayat sendiri.</div>
+          <div class="text-muted small"><i class="fa-solid fa-info-circle me-1"></i>Guna ⬆️ ⬇️ untuk ubah susunan ayat, atau ✏️ untuk sunting teks.</div>
           <button class="btn btn-outline-primary btn-sm rounded-pill font-monospace" onclick="addNewSentence()">
             <i class="fa-solid fa-plus me-1"></i>Tambah Ayat Baharu
           </button>
@@ -520,31 +499,6 @@
 
         <!-- Sentence Cards Container -->
         <div id="res-sentences-container"></div>
-
-        <!-- FIRST - THEN BOARD -->
-        <div class="custom-card p-4 mb-4 bg-light">
-          <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-arrows-split-up-and-left me-2"></i>Papan Pertama - Kemudian (First - Then Board)</h5>
-          <div class="row g-3">
-            <div class="col-6">
-              <div class="first-then-box">
-                <span class="badge bg-primary rounded-pill mb-2 fs-6">PERTAMA (First)</span>
-                <h5 class="fw-bold text-dark mb-0" id="res-first-text">Tugasan Utama</h5>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="first-then-box" style="border-color: var(--accent-green);">
-                <span class="badge bg-success rounded-pill mb-2 fs-6">KEMUDIAN (Then)</span>
-                <h5 class="fw-bold text-dark mb-0" id="res-then-text">Ganjaran / Aktiviti Disukai</h5>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- VISUAL SCHEDULE BOARD -->
-        <div class="custom-card p-4 mb-4">
-          <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-list-check me-2"></i>Jadual Visual Langkah-demi-Langkah</h5>
-          <div class="d-flex flex-row overflow-x-auto gap-2 pb-2" id="res-visual-schedule"></div>
-        </div>
 
       </div>
 
@@ -998,8 +952,6 @@
       const isBm = bahasa === 'BM';
 
       let sentences = [];
-      let firstThen = { first: '', then: '' };
-      let visualSteps = [];
 
       if (isBm) {
         if (tahap === 'Non-Verbal') {
@@ -1042,9 +994,6 @@
           ];
         }
 
-        firstThen = { first: `${situasi}`, then: `Bermain / Berehat` };
-        visualSteps = [`1. Bersedia`, `2. ${situasi}`, `3. ${nilai}`, `4. Selesai & Dipuji`];
-
       } else {
         if (tahap === 'Non-Verbal') {
           sentences = [
@@ -1085,9 +1034,6 @@
             `I am a brave and awesome child!`
           ];
         }
-
-        firstThen = { first: `${situasi}`, then: `Free Play / Rest` };
-        visualSteps = [`1. Get Ready`, `2. ${situasi}`, `3. Stay Calm`, `4. Done & Reward`];
       }
 
       const sentenceItems = sentences.map((st, idx) => ({
@@ -1107,8 +1053,6 @@
         emosi,
         nilai,
         sentences: sentenceItems,
-        firstThen,
-        visualSteps,
         isFav: false,
         tips: getBehaviorTips(nama, situasi, nilai, tahap, isBm)
       };
@@ -1128,7 +1072,7 @@
       }
     }
 
-    // 5. RENDER STORY RESULT TO UI
+    // 5. RENDER STORY RESULT TO UI (DENGAN BUTANG MENGGERAKKAN AYAT)
     function renderStoryResult(story) {
       currentActiveStory = story;
 
@@ -1140,6 +1084,9 @@
       container.innerHTML = '';
 
       story.sentences.forEach((s, idx) => {
+        const isFirst = idx === 0;
+        const isLast = idx === story.sentences.length - 1;
+
         const cardHtml = `
           <div class="sentence-card">
             <div class="sentence-img-container">
@@ -1157,7 +1104,15 @@
               <div id="sentence_view_box_${idx}" class="d-flex justify-content-between align-items-center">
                 <span class="fs-5 fw-bold text-dark me-2" id="text_display_${idx}">${s.text}</span>
                 <div class="d-flex gap-1 no-print">
-                  <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="speakSentenceText('${s.text.replace(/'/g, "\\'")}')" title="Sebut Suara Wanita BM">
+                  <!-- BUTANG MENGGERAKKAN SUSUNAN AYAT -->
+                  <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="moveSentenceUp(${idx})" ${isFirst ? 'disabled' : ''} title="Alih ke Atas">
+                    <i class="fa-solid fa-arrow-up"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="moveSentenceDown(${idx})" ${isLast ? 'disabled' : ''} title="Alih ke Bawah">
+                    <i class="fa-solid fa-arrow-down"></i>
+                  </button>
+                  
+                  <button class="btn btn-sm btn-outline-secondary rounded-circle ms-1" onclick="speakSentenceText('${s.text.replace(/'/g, "\\'")}')" title="Sebut Suara Wanita BM">
                     <i class="fa-solid fa-volume-high"></i>
                   </button>
                   <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="toggleInlineEdit(${idx})" title="Sunting Ayat Ini">
@@ -1187,15 +1142,6 @@
         container.insertAdjacentHTML('beforeend', cardHtml);
       });
 
-      document.getElementById('res-first-text').innerText = story.firstThen.first;
-      document.getElementById('res-then-text').innerText = story.firstThen.then;
-
-      const schedContainer = document.getElementById('res-visual-schedule');
-      schedContainer.innerHTML = '';
-      story.visualSteps.forEach(step => {
-        schedContainer.insertAdjacentHTML('beforeend', `<div class="schedule-chip"><i class="fa-solid fa-circle-check"></i>${step}</div>`);
-      });
-
       // CARA MEMPERKENALKAN CERITA INI
       if (!story.tips || !story.tips.intro) {
         story.tips = getBehaviorTips(story.nama, story.situasi, story.nilai, story.tahap, story.bahasa === 'BM');
@@ -1208,7 +1154,27 @@
       showView('story-result');
     }
 
-    // 6. LOGIK SUNTINGAN AYAT TERUS (INLINE EDITING & TAMBAH AYAT BAHARU)
+    // 6. LOGIK MENGGERAKKAN SUSUNAN AYAT (MOVE UP / DOWN) & INLINE EDITING
+    function moveSentenceUp(index) {
+      if (index > 0 && currentActiveStory) {
+        const temp = currentActiveStory.sentences[index];
+        currentActiveStory.sentences[index] = currentActiveStory.sentences[index - 1];
+        currentActiveStory.sentences[index - 1] = temp;
+        saveStoryToStorage(currentActiveStory);
+        renderStoryResult(currentActiveStory);
+      }
+    }
+
+    function moveSentenceDown(index) {
+      if (currentActiveStory && index < currentActiveStory.sentences.length - 1) {
+        const temp = currentActiveStory.sentences[index];
+        currentActiveStory.sentences[index] = currentActiveStory.sentences[index + 1];
+        currentActiveStory.sentences[index + 1] = temp;
+        saveStoryToStorage(currentActiveStory);
+        renderStoryResult(currentActiveStory);
+      }
+    }
+
     function toggleInlineEdit(idx) {
       const viewBox = document.getElementById(`sentence_view_box_${idx}`);
       const editBox = document.getElementById(`sentence_edit_box_${idx}`);
