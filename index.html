@@ -126,7 +126,7 @@
       background-color: var(--light-blue);
     }
 
-    /* KAD APERBAIKI UNTUK REKABENTUK GAMBAR CERITA SOSIAL */
+    /* KAD & FRAME GAMBAR DIPERBAIKI (AUTO-FIT & HAD LEBAR) */
     .sentence-card {
       background-color: var(--card-bg);
       border: 2px solid var(--border-color);
@@ -143,22 +143,29 @@
 
     .sentence-img-container {
       position: relative;
-      background-color: var(--light-blue);
+      background-color: #f1f5f9;
       width: 100%;
-      aspect-ratio: 4 / 3;
-      max-height: 360px;
+      max-width: 500px; /* Menghadkan lebar supaya gambar tidak terlalu lebar */
+      height: 260px; /* Saiz tinggi ideal untuk kad cerita */
+      margin: 0 auto; /* Memusatkan frame gambar */
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
       border-bottom: 2px solid var(--border-color);
+      border-radius: 1rem 1rem 0 0;
+    }
+
+    body.dark-mode .sentence-img-container {
+      background-color: #0f172a;
     }
 
     .sentence-img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain; /* AUTO-FIT GAMBAR TANPA PENYEK ATAU TERPOTONG */
       object-position: center;
+      padding: 4px;
       transition: transform 0.3s ease;
     }
 
@@ -203,7 +210,7 @@
       body { background: white !important; color: black !important; padding-bottom: 0 !important; }
       .no-print, .app-header, .bottom-nav, .btn, .nav-btn { display: none !important; }
       .custom-card, .sentence-card { border: 1px solid #ccc !important; break-inside: avoid; box-shadow: none !important; }
-      .sentence-img-container { height: 220px !important; aspect-ratio: auto !important; }
+      .sentence-img-container { height: 200px !important; max-width: 100% !important; }
     }
   </style>
 </head>
@@ -555,7 +562,7 @@
         <div class="fw-bold text-success fs-5 d-none" id="token-congrats">⭐⭐⭐⭐⭐ Tahniah! Syabas Atas Usaha Baik Ini!</div>
       </div>
 
-      <!-- PANDUAN CARA MEMPERKENALKAN CERITA INI (RINGKAS & DIBERSIHKAN) -->
+      <!-- PANDUAN CARA MEMPERKENALKAN CERITA INI -->
       <div class="custom-card p-4 mb-4 no-print border-start border-5 border-success">
         <h5 class="fw-bold text-success mb-2"><i class="fa-solid fa-lightbulb me-2"></i>📌 Cara Memperkenalkan Cerita Ini</h5>
         <p class="text-secondary mb-0" id="tip-intro" style="line-height: 1.7;"></p>
