@@ -215,43 +215,48 @@
   <!-- KANDUNGAN UTAMA / VIEWS -->
   <main class="container my-4 max-w-4xl px-3">
 
-    <!-- 0. VIEW LOGIN (MANDATORY LOGIN SCREEN) -->
+    <!-- 0. VIEW LOGIN (LOG MASUK / DAFTAR) -->
     <section id="view-login" class="app-view">
-      <div class="custom-card p-4 p-md-5 mx-auto max-w-md shadow-lg my-4">
+      <div class="custom-card p-4 p-md-5 mx-auto shadow-lg my-4" style="max-width: 450px;">
         <div class="text-center mb-4">
-          <span class="fs-1">🌟</span>
-          <h3 class="fw-bold text-primary mt-2">Log Masuk Aplikasi</h3>
-          <p class="text-muted small">Sila log masuk untuk menjana dan menyimpan Cerita Sosial anak anda.</p>
+          <span class="fs-1">📖</span>
+          <h3 class="fw-bold text-primary mt-2">My Social Story</h3>
+          <p class="text-muted small">Sila log masuk atau daftar untuk mula menghasilkan Cerita Sosial.</p>
         </div>
 
-        <form id="form-login-screen" onsubmit="handleLoginScreen(event)">
+        <!-- TAB TOGGLE LOG MASUK / DAFTAR -->
+        <div class="d-flex bg-light p-1 rounded-pill mb-4 border">
+          <button type="button" class="btn btn-primary rounded-pill flex-fill fw-bold py-2 btn-sm" id="tab-btn-login" onclick="switchAuthTab('login')">Log Masuk</button>
+          <button type="button" class="btn btn-light rounded-pill flex-fill fw-bold py-2 btn-sm text-muted" id="tab-btn-register" onclick="switchAuthTab('register')">Daftar Akaun</button>
+        </div>
+
+        <form id="form-auth-screen" onsubmit="handleAuthFormSubmit(event)">
           <div class="mb-3">
             <label class="form-label fw-bold">Alamat Emel</label>
-            <input type="email" id="login-email" class="form-control rounded-3 p-2.5" required placeholder="ibubapa@example.com">
+            <input type="email" id="auth-email" class="form-control rounded-3 p-2.5" required placeholder="ibubapa@example.com">
           </div>
           <div class="mb-3">
             <div class="d-flex justify-content-between align-items-center">
               <label class="form-label fw-bold mb-0">Kata Laluan</label>
-              <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none text-primary fw-semibold" onclick="handleForgotPasswordScreen()">
+              <button type="button" id="btn-forgot-pass-link" class="btn btn-link btn-sm p-0 text-decoration-none text-primary fw-semibold" onclick="handleForgotPasswordScreen()">
                 Lupa Kata Laluan?
               </button>
             </div>
-            <input type="password" id="login-password" class="form-control rounded-3 p-2.5 mt-1" required placeholder="••••••••">
+            <input type="password" id="auth-password" class="form-control rounded-3 p-2.5 mt-1" required placeholder="••••••••" minlength="6">
           </div>
 
-          <div id="login-alert" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
+          <div id="auth-alert" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
+          <div id="auth-success" class="alert alert-success d-none py-2 px-3 small mb-3"></div>
 
-          <button type="submit" id="btn-login-submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold fs-6 shadow">
+          <button type="submit" id="btn-auth-submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold fs-6 shadow">
             Log Masuk
           </button>
         </form>
 
-        <hr class="my-4">
-
-        <div class="text-center">
-          <p class="small text-muted mb-2">Belum mempunyai akaun?</p>
-          <button onclick="handleRegisterScreen()" class="btn btn-outline-primary w-100 rounded-pill py-2.5 fw-bold">
-            Daftar Akaun Baharu
+        <div class="text-center mt-3">
+          <div class="text-muted small my-2">- ATAU -</div>
+          <button onclick="loginAsGuest()" class="btn btn-outline-secondary w-100 rounded-pill py-2.5 fw-bold btn-sm">
+            <i class="fa-solid fa-user-clock me-1"></i> Log Masuk Sebagai Tetamu (Mod Luar Talian)
           </button>
         </div>
       </div>
@@ -347,7 +352,7 @@
               </select>
             </div>
 
-            <!-- Tahap Bahasa (Mengawal Panjang Cerita Secara Dinamik) -->
+            <!-- Tahap Bahasa -->
             <div class="col-md-6">
               <label class="form-label fw-bold">Tahap Bahasa Anak</label>
               <select id="input-tahap" class="form-select rounded-3 p-2.5">
@@ -717,25 +722,169 @@
     let myStories = [];
     let currentActiveStory = null;
     let editModalInstance = null;
+    let authMode = 'login'; // 'login' or 'register'
 
     document.addEventListener("DOMContentLoaded", () => {
       editModalInstance = new bootstrap.Modal(document.getElementById('editSentenceModal'));
       loadLocalStories();
 
-      // Firebase Auth Listener
+      // Firebase Auth State Listener
       auth.onAuthStateChanged(user => {
-        currentUser = user;
-        updateAuthUI();
         if (user) {
+          currentUser = user;
+          localStorage.removeItem('guest_session');
+          updateAuthUI();
           syncStoriesFromFirebase();
           showView('home');
         } else {
-          showView('login');
+          const guestSession = localStorage.getItem('guest_session');
+          if (guestSession) {
+            try {
+              currentUser = JSON.parse(guestSession);
+              updateAuthUI();
+              showView('home');
+            } catch(e) {
+              currentUser = null;
+              updateAuthUI();
+              showView('login');
+            }
+          } else {
+            currentUser = null;
+            updateAuthUI();
+            showView('login');
+          }
         }
       });
     });
 
-    // 2. AUTHENTICATION LOGIC (MANDATORY LOGIN & RESET PASSWORD)
+    // 2. AUTHENTICATION & LOGIN SCREEN LOGIC
+    function switchAuthTab(mode) {
+      authMode = mode;
+      const btnLogin = document.getElementById('tab-btn-login');
+      const btnRegister = document.getElementById('tab-btn-register');
+      const btnSubmit = document.getElementById('btn-auth-submit');
+      const forgotLink = document.getElementById('btn-forgot-pass-link');
+      const alertDiv = document.getElementById('auth-alert');
+      const successDiv = document.getElementById('auth-success');
+
+      alertDiv.classList.add('d-none');
+      successDiv.classList.add('d-none');
+
+      if (mode === 'login') {
+        btnLogin.className = 'btn btn-primary rounded-pill flex-fill fw-bold py-2 btn-sm';
+        btnRegister.className = 'btn btn-light rounded-pill flex-fill fw-bold py-2 btn-sm text-muted';
+        btnSubmit.innerText = 'Log Masuk';
+        forgotLink.classList.remove('d-none');
+      } else {
+        btnRegister.className = 'btn btn-primary rounded-pill flex-fill fw-bold py-2 btn-sm';
+        btnLogin.className = 'btn btn-light rounded-pill flex-fill fw-bold py-2 btn-sm text-muted';
+        btnSubmit.innerText = 'Daftar Akaun Baharu';
+        forgotLink.classList.add('d-none');
+      }
+    }
+
+    function translateAuthError(code, message) {
+      switch(code) {
+        case 'auth/user-not-found':
+          return 'Akaun emel ini belum berdaftar. Sila tekan tab "Daftar Akaun" di atas.';
+        case 'auth/wrong-password':
+          return 'Kata laluan tidak tepat. Sila cuba lagi atau tekan "Lupa Kata Laluan?".';
+        case 'auth/invalid-email':
+          return 'Format emel tidak sah.';
+        case 'auth/email-already-in-use':
+          return 'Emel ini sudah berdaftar. Sila tekan tab "Log Masuk".';
+        case 'auth/weak-password':
+          return 'Kata laluan terlalu lemah. Sila guna sekurang-kurangnya 6 aksara.';
+        case 'auth/unauthorized-domain':
+        case 'auth/operation-not-allowed':
+          return 'Tetapan Firebase Auth belum diaktifkan. Anda boleh menekan "Log Masuk Sebagai Tetamu" di bawah.';
+        default:
+          return 'Ralat: ' + message;
+      }
+    }
+
+    function handleAuthFormSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value.trim();
+      const pass = document.getElementById('auth-password').value;
+      const alertDiv = document.getElementById('auth-alert');
+      const successDiv = document.getElementById('auth-success');
+      const submitBtn = document.getElementById('btn-auth-submit');
+
+      alertDiv.classList.add('d-none');
+      successDiv.classList.add('d-none');
+      submitBtn.disabled = true;
+
+      if (authMode === 'login') {
+        submitBtn.innerText = 'Log Masuk...';
+        auth.signInWithEmailAndPassword(email, pass)
+          .catch(err => {
+            alertDiv.classList.remove('d-none');
+            alertDiv.innerText = translateAuthError(err.code, err.message);
+          })
+          .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'Log Masuk';
+          });
+      } else {
+        submitBtn.innerText = 'Mendaftar Akaun...';
+        auth.createUserWithEmailAndPassword(email, pass)
+          .then(() => {
+            successDiv.classList.remove('d-none');
+            successDiv.innerText = 'Akaun berjaya dicipta! Anda kini log masuk.';
+          })
+          .catch(err => {
+            alertDiv.classList.remove('d-none');
+            alertDiv.innerText = translateAuthError(err.code, err.message);
+          })
+          .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'Daftar Akaun Baharu';
+          });
+      }
+    }
+
+    function handleForgotPasswordScreen() {
+      const email = document.getElementById('auth-email').value.trim();
+      if (!email) {
+        alert('Sila masukkan alamat emel anda pada ruang borang terlebih dahulu.');
+        return;
+      }
+
+      auth.sendPasswordResetEmail(email)
+        .then(() => {
+          alert('Pautan set semula kata laluan telah dihantar ke emel ' + email + '. Sila semak peti masuk (inbox/spam) emel anda.');
+        })
+        .catch(err => {
+          alert('Ralat semasa menghantar emel: ' + translateAuthError(err.code, err.message));
+        });
+    }
+
+    function loginAsGuest() {
+      currentUser = {
+        uid: 'guest_' + Date.now(),
+        email: 'tetamu@guest.local',
+        isGuest: true
+      };
+      localStorage.setItem('guest_session', JSON.stringify(currentUser));
+      updateAuthUI();
+      showView('home');
+    }
+
+    function logoutUser() {
+      if (confirm("Adakah anda pasti mahu log keluar?")) {
+        localStorage.removeItem('guest_session');
+        currentUser = null;
+        auth.signOut().then(() => {
+          updateAuthUI();
+          showView('login');
+        }).catch(() => {
+          updateAuthUI();
+          showView('login');
+        });
+      }
+    }
+
     function updateAuthUI() {
       const headerContainer = document.getElementById('auth-header-btn');
       const settingsAccount = document.getElementById('settings-account-info');
@@ -752,7 +901,7 @@
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <div class="fw-bold text-dark">${currentUser.email}</div>
-              <small class="text-success"><i class="fa-solid fa-cloud-check me-1"></i>Terselaras dengan Firebase Cloud</small>
+              <small class="text-success"><i class="fa-solid fa-cloud-check me-1"></i>${currentUser.isGuest ? 'Akaun Tetamu (Lokal)' : 'Terselaras dengan Firebase Cloud'}</small>
             </div>
             <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="logoutUser()">Log Keluar</button>
           </div>
@@ -760,69 +909,6 @@
       } else {
         if (navBar) navBar.classList.add('d-none');
         headerContainer.innerHTML = ``;
-      }
-    }
-
-    function handleLoginScreen(e) {
-      e.preventDefault();
-      const email = document.getElementById('login-email').value.trim();
-      const pass = document.getElementById('login-password').value;
-      const alertDiv = document.getElementById('login-alert');
-      const submitBtn = document.getElementById('btn-login-submit');
-
-      alertDiv.classList.add('d-none');
-      submitBtn.disabled = true;
-      submitBtn.innerText = 'Log Masuk...';
-
-      auth.signInWithEmailAndPassword(email, pass)
-        .catch(err => {
-          alertDiv.classList.remove('d-none');
-          alertDiv.innerText = 'Ralat Log Masuk: ' + err.message;
-        })
-        .finally(() => {
-          submitBtn.disabled = false;
-          submitBtn.innerText = 'Log Masuk';
-        });
-    }
-
-    function handleRegisterScreen() {
-      const email = document.getElementById('login-email').value.trim();
-      const pass = document.getElementById('login-password').value;
-      const alertDiv = document.getElementById('login-alert');
-
-      if (!email || !pass || pass.length < 6) {
-        alertDiv.classList.remove('d-none');
-        alertDiv.innerText = 'Sila masukkan emel dan kata laluan sekurang-kurangnya 6 aksara.';
-        return;
-      }
-
-      auth.createUserWithEmailAndPassword(email, pass)
-        .then(() => alert('Akaun berjaya dicipta!'))
-        .catch(err => {
-          alertDiv.classList.remove('d-none');
-          alertDiv.innerText = 'Ralat Pendaftaran: ' + err.message;
-        });
-    }
-
-    function handleForgotPasswordScreen() {
-      const email = document.getElementById('login-email').value.trim();
-      if (!email) {
-        alert('Sila masukkan emel anda pada borang terlebih dahulu untuk menetapkan semula kata laluan.');
-        return;
-      }
-
-      auth.sendPasswordResetEmail(email)
-        .then(() => {
-          alert('Pautan set semula kata laluan telah dihantar ke peti masuk emel ' + email + '. Sila semak emel anda (termasuk folder Spam).');
-        })
-        .catch(err => {
-          alert('Ralat semasa menghantar pautan: ' + err.message);
-        });
-    }
-
-    function logoutUser() {
-      if (confirm("Adakah anda pasti mahu log keluar?")) {
-        auth.signOut().then(() => showView('login'));
       }
     }
 
@@ -905,7 +991,6 @@
 
       if (isBm) {
         if (tahap === 'Non-Verbal') {
-          // 4 Ayat Sangat Ringkas (Fokus Visual Utama)
           sentences = [
             `Saya ${nama}.`,
             `Hari ini ${situasi.toLowerCase()}.`,
@@ -913,7 +998,6 @@
             `Saya tenang.`
           ];
         } else if (tahap === '1-2 Patah Perkataan') {
-          // 5 Ayat Pendek
           sentences = [
             `Nama saya ${nama}.`,
             `Saya pergi ${situasi.toLowerCase()}.`,
@@ -922,7 +1006,6 @@
             `Saya anak gembira.`
           ];
         } else if (tahap === '3-4 Patah Perkataan') {
-          // 7 Ayat Sederhana
           sentences = [
             `Nama saya ${nama}.`,
             `Hari ini saya pergi ${situasi.toLowerCase()}.`,
@@ -933,7 +1016,6 @@
             `Mama sangat bangga dengan saya.`
           ];
         } else {
-          // 5+ Patah Perkataan (8-10 Ayat Penuh Carol Gray)
           sentences = [
             `Nama saya ${nama} dan saya berumur ${umur}.`,
             `Kadang-kadang, saya perlu pergi ke ${situasi.toLowerCase()}.`,
@@ -952,7 +1034,6 @@
         visualSteps = [`1. Bersedia`, `2. ${situasi}`, `3. ${nilai}`, `4. Selesai & Dipuji`];
 
       } else {
-        // ENGLISH
         if (tahap === 'Non-Verbal') {
           sentences = [
             `I am ${nama}.`,
@@ -1195,7 +1276,7 @@
 
       localStorage.setItem('my_social_stories', JSON.stringify(myStories));
 
-      if (currentUser) {
+      if (currentUser && !currentUser.isGuest) {
         db.ref(`users/${currentUser.uid}/stories/${story.id}`).set(story);
       }
     }
@@ -1208,7 +1289,7 @@
     }
 
     function syncStoriesFromFirebase() {
-      if (currentUser) {
+      if (currentUser && !currentUser.isGuest) {
         db.ref(`users/${currentUser.uid}/stories`).once('value', snapshot => {
           const val = snapshot.val();
           if (val) {
@@ -1315,7 +1396,7 @@
         myStories = myStories.filter(s => s.id !== storyId);
         localStorage.setItem('my_social_stories', JSON.stringify(myStories));
 
-        if (currentUser) {
+        if (currentUser && !currentUser.isGuest) {
           db.ref(`users/${currentUser.uid}/stories/${storyId}`).remove();
         }
 
