@@ -163,9 +163,8 @@
     .sentence-img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
       object-position: center;
-      padding: 4px;
       transition: transform 0.3s ease;
     }
 
@@ -269,7 +268,7 @@
       <div class="custom-card p-4 p-md-5 mb-4 text-center bg-gradient position-relative overflow-hidden" style="background: linear-gradient(135deg, var(--light-blue), var(--pastel-green));">
         <div class="mb-3 fs-1">🧩✨</div>
         <h1 class="fw-bold mb-2 text-primary">Penjana Cerita Sosial AI PANTAS</h1>
-        <p class="text-secondary fs-6 mb-4">Membantu kanak-kanak Autism (ASD) memahami situasi sosial, emosi, dan perubahan rutin dengan gambar ilustrasi AI khas.</p>
+        <p class="text-secondary fs-6 mb-4">Membantu kanak-kanak Autism (ASD) memahami situasi sosial, emosi, dan perubahan rutin dengan gambar realistik AI khas.</p>
         <button onclick="showView('generate')" class="btn btn-primary btn-lg rounded-pill px-4 py-3 fw-bold shadow">
           <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Cipta Cerita Sekarang
         </button>
@@ -278,9 +277,9 @@
       <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
           <div class="custom-card p-3 text-center">
-            <i class="fa-solid fa-robot fs-3 text-primary mb-2"></i>
-            <h6 class="fw-bold mb-0">Ilustrasi AI</h6>
-            <small class="text-muted">Gambar Otomatik</small>
+            <i class="fa-solid fa-camera fs-3 text-primary mb-2"></i>
+            <h6 class="fw-bold mb-0">Gambar Realistik</h6>
+            <small class="text-muted">Gaya Foto AI</small>
           </div>
         </div>
         <div class="col-6 col-md-3">
@@ -345,12 +344,11 @@
               </select>
             </div>
 
-            <!-- Bahasa -->
+            <!-- Bahasa (Dikunci ke Bahasa Melayu) -->
             <div class="col-md-6">
               <label class="form-label fw-bold">Bahasa Cerita</label>
-              <select id="input-bahasa" class="form-select rounded-3 p-2.5">
+              <select id="input-bahasa" class="form-select rounded-3 p-2.5" disabled>
                 <option value="BM" selected>Bahasa Melayu</option>
-                <option value="EN">English</option>
               </select>
             </div>
 
@@ -471,7 +469,7 @@
               <i class="fa-regular fa-heart me-1"></i> Simpan Kegemaran
             </button>
             <button onclick="readFullStoryTTS()" class="btn btn-warning btn-sm rounded-pill fw-bold">
-              🔊 Baca Cerita (Suara Wanita BM)
+              🔊 Bacakan Cerita
             </button>
             <button onclick="window.print()" class="btn btn-outline-primary btn-sm rounded-pill">
               📄 PDF / 🖨 Cetak
@@ -908,7 +906,7 @@
 
       const nama = document.getElementById('input-nama').value.trim() || 'Ali';
       const umur = document.getElementById('input-umur').value;
-      const bahasa = document.getElementById('input-bahasa').value;
+      const bahasa = 'BM'; 
       const tahap = document.getElementById('input-tahap').value;
       
       let situasi = document.getElementById('input-situasi-select').value;
@@ -921,7 +919,7 @@
 
       const submitBtn = document.getElementById('btn-generate-submit');
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menjana Gambar AI & Cerita...';
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menjana Gambar AI Realistik & Cerita...';
 
       setTimeout(() => {
         const storyData = generateSocialStoryByLanguageLevel({ nama, umur, bahasa, tahap, situasi, emosi, nilai });
@@ -940,9 +938,10 @@
       }
     }
 
-    // GENERATE AI IMAGE URL (Pollinations AI Engine)
+    // GENERATE REALISTIC AI IMAGE URL (Pollinations AI Engine)
     function generateAIImageUrl(sentenceText, situasi) {
-      const promptText = `cute 2d children storybook illustration, soft colors, autism friendly vector art, ${situasi}, ${sentenceText}`;
+      // Menggunakan katakunci "realistic photo style" & "high quality stock photo" untuk imej realistik
+      const promptText = `realistic photo style, natural lighting, high quality stock photo, autism friendly, child in ${situasi}, ${sentenceText}`;
       const encodedPrompt = encodeURIComponent(promptText);
       const randomSeed = Math.floor(Math.random() * 10000);
       return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=384&nologo=true&seed=${randomSeed}`;
@@ -951,91 +950,47 @@
     // STORY GENERATOR BASED ON CHILD'S LANGUAGE LEVEL
     function generateSocialStoryByLanguageLevel(params) {
       const { nama, umur, bahasa, tahap, situasi, emosi, nilai } = params;
-      const isBm = bahasa === 'BM';
 
       let sentences = [];
 
-      if (isBm) {
-        if (tahap === 'Non-Verbal') {
-          sentences = [
-            `Saya ${nama}.`,
-            `Hari ini ${situasi.toLowerCase()}.`,
-            `Saya boleh ${nilai.toLowerCase()}.`,
-            `Saya tenang.`
-          ];
-        } else if (tahap === '1-2 Patah Perkataan') {
-          sentences = [
-            `Nama saya ${nama}.`,
-            `Saya pergi ${situasi.toLowerCase()}.`,
-            `Tempat ini ramai orang.`,
-            `Saya cuba ${nilai.toLowerCase()}.`,
-            `Saya anak gembira.`
-          ];
-        } else if (tahap === '3-4 Patah Perkataan') {
-          sentences = [
-            `Nama saya ${nama}.`,
-            `Hari ini saya pergi ${situasi.toLowerCase()}.`,
-            `Kadang-kadang tempat ini bising.`,
-            `Ibu berada di sisi saya.`,
-            `Saya berasa ${emosi.toLowerCase()}.`,
-            `Saya boleh ${nilai.toLowerCase()} dengan tenang.`,
-            `Mama sangat bangga dengan saya.`
-          ];
-        } else {
-          sentences = [
-            `Nama saya ${nama} dan saya berumur ${umur}.`,
-            `Kadang-kadang, saya perlu pergi ke ${situasi.toLowerCase()}.`,
-            `Apabila berada di ${situasi.toLowerCase()}, tempat ini mungkin sibuk dan bising.`,
-            `Ibu bapa dan guru saya akan sentiasa berada di sisi saya.`,
-            `Saya boleh merasa ${emosi.toLowerCase()}. Ini adalah perasaan yang normal.`,
-            `Apabila saya berasa cemas, saya boleh tarik nafas dalam-dalam.`,
-            `Saya akan berusaha untuk ${nilai.toLowerCase()} dan mendengar arahan.`,
-            `Ibu bapa dan guru berasa sangat gembira apabila saya tenang.`,
-            `Selepas selesai ${situasi.toLowerCase()}, saya boleh bermain mainan kegemaran saya.`,
-            `Saya berasa bangga kerana saya seorang anak yang berani!`
-          ];
-        }
-
+      if (tahap === 'Non-Verbal') {
+        sentences = [
+          `Saya ${nama}.`,
+          `Hari ini ${situasi.toLowerCase()}.`,
+          `Saya boleh ${nilai.toLowerCase()}.`,
+          `Saya tenang.`
+        ];
+      } else if (tahap === '1-2 Patah Perkataan') {
+        sentences = [
+          `Nama saya ${nama}.`,
+          `Saya pergi ${situasi.toLowerCase()}.`,
+          `Tempat ini ramai orang.`,
+          `Saya cuba ${nilai.toLowerCase()}.`,
+          `Saya anak gembira.`
+        ];
+      } else if (tahap === '3-4 Patah Perkataan') {
+        sentences = [
+          `Nama saya ${nama}.`,
+          `Hari ini saya pergi ${situasi.toLowerCase()}.`,
+          `Kadang-kadang tempat ini bising.`,
+          `Ibu berada di sisi saya.`,
+          `Saya berasa ${emosi.toLowerCase()}.`,
+          `Saya boleh ${nilai.toLowerCase()} dengan tenang.`,
+          `Mama sangat bangga dengan saya.`
+        ];
       } else {
-        if (tahap === 'Non-Verbal') {
-          sentences = [
-            `I am ${nama}.`,
-            `Today is ${situasi.toLowerCase()}.`,
-            `I can ${nilai.toLowerCase()}.`,
-            `I am calm.`
-          ];
-        } else if (tahap === '1-2 Patah Perkataan') {
-          sentences = [
-            `My name is ${nama}.`,
-            `I go to ${situasi.toLowerCase()}.`,
-            `It can be busy.`,
-            `I will ${nilai.toLowerCase()}.`,
-            `I am happy.`
-          ];
-        } else if (tahap === '3-4 Patah Perkataan') {
-          sentences = [
-            `My name is ${nama}.`,
-            `Today I go to ${situasi.toLowerCase()}.`,
-            `Sometimes it is loud.`,
-            `My family helps me.`,
-            `I feel ${emosi.toLowerCase()} sometimes.`,
-            `I can ${nilai.toLowerCase()} gently.`,
-            `Everyone is proud of me.`
-          ];
-        } else {
-          sentences = [
-            `My name is ${nama} and I am ${umur} old.`,
-            `Sometimes, I need to go for ${situasi.toLowerCase()}.`,
-            `When doing ${situasi.toLowerCase()}, it might be loud or busy.`,
-            `My parents and teachers are here to help me safe.`,
-            `It is okay if I feel ${emosi.toLowerCase()}. Everyone feels this way sometimes.`,
-            `I can take 3 deep breaths to calm my body.`,
-            `I will practice to ${nilai.toLowerCase()} and follow instructions.`,
-            `My family is very proud when I try my best.`,
-            `When finished, I get to enjoy my reward.`,
-            `I am a brave and awesome child!`
-          ];
-        }
+        sentences = [
+          `Nama saya ${nama} dan saya berumur ${umur}.`,
+          `Kadang-kadang, saya perlu pergi ke ${situasi.toLowerCase()}.`,
+          `Apabila berada di ${situasi.toLowerCase()}, tempat ini mungkin sibuk dan bising.`,
+          `Ibu bapa dan guru saya akan sentiasa berada di sisi saya.`,
+          `Saya boleh merasa ${emosi.toLowerCase()}. Ini adalah perasaan yang normal.`,
+          `Apabila saya berasa cemas, saya boleh tarik nafas dalam-dalam.`,
+          `Saya akan berusaha untuk ${nilai.toLowerCase()} dan mendengar arahan.`,
+          `Ibu bapa dan guru berasa sangat gembira apabila saya tenang.`,
+          `Selepas selesai ${situasi.toLowerCase()}, saya boleh bermain mainan kegemaran saya.`,
+          `Saya berasa bangga kerana saya seorang anak yang berani!`
+        ];
       }
 
       const sentenceItems = sentences.map((st, idx) => ({
@@ -1056,21 +1011,15 @@
         nilai,
         sentences: sentenceItems,
         isFav: false,
-        tips: getBehaviorTips(nama, situasi, nilai, tahap, isBm)
+        tips: getBehaviorTips(nama, situasi, nilai, tahap)
       };
     }
 
-    function getBehaviorTips(nama, situasi, nilai, tahap, isBm) {
+    function getBehaviorTips(nama, situasi, nilai, tahap) {
       const childName = nama || 'anak';
-      if (isBm) {
-        return {
-          intro: `Sediakan persekitaran yang tenang dan bebas daripada gangguan gajet atau bunyi bising. Bacakan cerita ini bersama ${childName} semasa beliau dalam keadaan selesa dan tenang. Elakkan memaksa atau membaca cerita ini ketika anak sedang gelisah atau mengamuk. Duduk di sebelah ${childName} dan tunjukkan setiap gambar ilustrasi satu demi satu secara perlahan.`
-        };
-      } else {
-        return {
-          intro: `Set up a quiet environment free from digital distractions. Read this story with ${childName} when they are relaxed and comfortable. Avoid reading during a meltdown or when the child is overwhelmed. Sit alongside ${childName} and point to each visual illustration as you go through the pages.`
-        };
-      }
+      return {
+        intro: `Sediakan persekitaran yang tenang dan bebas daripada gangguan gajet atau bunyi bising. Bacakan cerita ini bersama ${childName} semasa beliau dalam keadaan selesa dan tenang. Elakkan memaksa atau membaca cerita ini ketika anak sedang gelisah atau mengamuk. Duduk di sebelah ${childName} dan tunjukkan setiap gambar satu demi satu secara perlahan.`
+      };
     }
 
     // 5. RENDER STORY RESULT TO UI
@@ -1091,7 +1040,7 @@
         const cardHtml = `
           <div class="sentence-card">
             <div class="sentence-img-container">
-              <img src="${s.img}" class="sentence-img" id="img_elem_${idx}" onerror="this.src='https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${idx}'">
+              <img src="${s.img}" class="sentence-img" id="img_elem_${idx}" onerror="this.src='https://images.unsplash.com/photo-1544717305-2782549b5136?w=500&auto=format&fit=crop'">
               <div class="position-absolute top-0 end-0 p-2 no-print">
                 <input type="file" id="file_input_${idx}" class="d-none" accept="image/*" onchange="uploadCustomImage(event, ${idx})">
                 <button class="btn btn-sm btn-light rounded-circle shadow" onclick="document.getElementById('file_input_${idx}').click()" title="Ganti Gambar">
@@ -1113,7 +1062,7 @@
                     <i class="fa-solid fa-arrow-down"></i>
                   </button>
                   
-                  <button class="btn btn-sm btn-outline-secondary rounded-circle ms-1" onclick="speakSentenceText('${s.text.replace(/'/g, "\\'")}')" title="Sebut Suara Wanita BM">
+                  <button class="btn btn-sm btn-outline-secondary rounded-circle ms-1" onclick="speakSentenceText('${s.text.replace(/'/g, "\\'")}')" title="Sebutan Suara BM">
                     <i class="fa-solid fa-volume-high"></i>
                   </button>
                   <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="toggleInlineEdit(${idx})" title="Sunting Ayat Ini">
@@ -1145,7 +1094,7 @@
 
       // CARA MEMPERKENALKAN CERITA INI
       if (!story.tips || !story.tips.intro) {
-        story.tips = getBehaviorTips(story.nama, story.situasi, story.nilai, story.tahap, story.bahasa === 'BM');
+        story.tips = getBehaviorTips(story.nama, story.situasi, story.nilai, story.tahap);
       }
 
       document.getElementById('tip-intro').innerText = story.tips.intro;
@@ -1260,7 +1209,7 @@
       }
     }
 
-    // 7. TEXT-TO-SPEECH (TTS) AUDIO - SUARA PEREMPUAN WANITA BM
+    // 7. TEXT-TO-SPEECH (TTS) AUDIO - SUARA BM
     function getMalayFemaleVoice() {
       if (availableVoices.length === 0) {
         availableVoices = window.speechSynthesis.getVoices();
@@ -1291,16 +1240,11 @@
 
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      const isEn = currentActiveStory && currentActiveStory.bahasa === 'EN';
-
-      if (isEn) {
-        utterance.lang = 'en-US';
-      } else {
-        utterance.lang = 'ms-MY';
-        const femaleVoice = getMalayFemaleVoice();
-        if (femaleVoice) {
-          utterance.voice = femaleVoice;
-        }
+      utterance.lang = 'ms-MY';
+      
+      const femaleVoice = getMalayFemaleVoice();
+      if (femaleVoice) {
+        utterance.voice = femaleVoice;
       }
 
       utterance.rate = 0.85;
