@@ -185,6 +185,16 @@
       transform: scale(1.2);
     }
 
+    .editable-title {
+      cursor: pointer;
+      border-bottom: 2px dashed transparent;
+      transition: border-color 0.2s;
+    }
+
+    .editable-title:hover {
+      border-bottom-color: var(--primary-blue);
+    }
+
     @media print {
       body { background: white !important; color: black !important; padding-bottom: 0 !important; }
       .no-print, .app-header, .bottom-nav, .btn, .nav-btn { display: none !important; }
@@ -468,7 +478,7 @@
               <i class="fa-regular fa-heart me-1"></i> Simpan Kegemaran
             </button>
             <button onclick="readFullStoryTTS()" class="btn btn-warning btn-sm rounded-pill fw-bold">
-              🔊 Bacakan Cerita
+              🔊 Baca Cerita
             </button>
             <button onclick="window.print()" class="btn btn-outline-primary btn-sm rounded-pill">
               📄 PDF / 🖨 Cetak
@@ -485,7 +495,15 @@
         
         <div class="custom-card p-4 mb-4 text-center border-start border-5 border-primary">
           <span class="badge bg-primary rounded-pill mb-2" id="res-badge-situasi">Situasi</span>
-          <h2 class="fw-bold mb-1" id="res-story-title">Cerita Sosial Ali</h2>
+          
+          <!-- TAJUK CERITA BOLEH DISUNTING -->
+          <div class="d-flex justify-content-center align-items-center gap-2 mb-1">
+            <h2 class="fw-bold mb-0 editable-title" id="res-story-title" onclick="editStoryTitlePrompt()" title="Tekan untuk sunting tajuk">Cerita Sosial Ali</h2>
+            <button class="btn btn-sm btn-outline-primary rounded-circle no-print" onclick="editStoryTitlePrompt()" title="Sunting Tajuk Cerita">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+          </div>
+
           <small class="text-muted" id="res-story-meta">Untuk Ali (5 tahun) • Emosi: 😊 Gembira • Nilai: Sabar</small>
         </div>
 
@@ -905,7 +923,7 @@
 
       const nama = document.getElementById('input-nama').value.trim() || 'Ali';
       const umur = document.getElementById('input-umur').value;
-      const bahasa = 'BM'; // Bahasa dikunci ke BM sahaja
+      const bahasa = 'BM'; // Bahasa Melayu sahaja
       const tahap = document.getElementById('input-tahap').value;
       
       let situasi = document.getElementById('input-situasi-select').value;
@@ -999,6 +1017,7 @@
 
       return {
         id: 'story_' + Date.now(),
+        title: `Cerita Sosial ${nama}`,
         createdAt: new Date().toISOString().split('T')[0],
         nama,
         umur,
@@ -1023,8 +1042,11 @@
     // 5. RENDER STORY RESULT TO UI
     function renderStoryResult(story) {
       currentActiveStory = story;
+      if (!currentActiveStory.title) {
+        currentActiveStory.title = `Cerita Sosial ${story.nama}`;
+      }
 
-      document.getElementById('res-story-title').innerText = `Cerita Sosial ${story.nama}`;
+      document.getElementById('res-story-title').innerText = currentActiveStory.title;
       document.getElementById('res-badge-situasi').innerText = story.situasi;
       document.getElementById('res-story-meta').innerText = `Untuk ${story.nama} (${story.umur}) • Tahap Kemahiran: ${story.tahap} • Emosi: ${story.emosi}`;
 
@@ -1100,6 +1122,19 @@
       resetTokenStars();
       saveStoryToStorage(story);
       showView('story-result');
+    }
+
+    // FUNGSI SUNNTING TAJUK CERITA
+    function editStoryTitlePrompt() {
+      if (!currentActiveStory) return;
+      const currentTitle = currentActiveStory.title || `Cerita Sosial ${currentActiveStory.nama}`;
+      const newTitle = prompt("Masukkan tajuk baharu untuk cerita ini:", currentTitle);
+      
+      if (newTitle && newTitle.trim()) {
+        currentActiveStory.title = newTitle.trim();
+        document.getElementById('res-story-title').innerText = currentActiveStory.title;
+        saveStoryToStorage(currentActiveStory);
+      }
     }
 
     // 6. LOGIK MENGGERAKKAN SUSUNAN AYAT & SUNTINGAN CERITA
@@ -1394,12 +1429,13 @@
     }
 
     function createStoryCardHtml(story) {
+      const storyTitle = story.title || `Cerita Sosial ${story.nama}`;
       return `
         <div class="col-md-6">
           <div class="custom-card p-3 d-flex justify-content-between align-items-center">
             <div>
               <span class="badge bg-primary rounded-pill mb-1">${story.situasi}</span>
-              <h6 class="fw-bold mb-1">Cerita Sosial ${story.nama}</h6>
+              <h6 class="fw-bold mb-1">${storyTitle}</h6>
               <small class="text-muted">${story.createdAt} • ${story.sentences.length} Ayat</small>
             </div>
             <div class="d-flex gap-2">
@@ -1448,6 +1484,7 @@
     function filterMyStories() {
       const q = document.getElementById('input-search-stories').value.toLowerCase();
       const filtered = myStories.filter(s => 
+        (s.title && s.title.toLowerCase().includes(q)) ||
         s.nama.toLowerCase().includes(q) || 
         s.situasi.toLowerCase().includes(q) ||
         s.createdAt.includes(q)
@@ -1463,7 +1500,8 @@
     // 11. SHARING
     function shareWhatsApp() {
       if (currentActiveStory) {
-        const text = `*Cerita Sosial ASD: ${currentActiveStory.nama}*\nSituasi: ${currentActiveStory.situasi}\n\n` + 
+        const titleText = currentActiveStory.title || `Cerita Sosial ${currentActiveStory.nama}`;
+        const text = `*${titleText}*\nSituasi: ${currentActiveStory.situasi}\n\n` + 
           currentActiveStory.sentences.map((s, idx) => `${idx + 1}. ${s.text}`).join('\n') +
           `\n\nDihasilkan melalui My Social Story Generator App.`;
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
