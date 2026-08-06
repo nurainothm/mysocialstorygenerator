@@ -146,7 +146,7 @@
       background-color: #f1f5f9;
       width: 100%;
       max-width: 500px;
-      height: 260px;
+      height: 280px;
       margin: 0 auto;
       display: flex;
       align-items: center;
@@ -163,9 +163,8 @@
     .sentence-img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
       object-position: center;
-      padding: 4px;
       transition: transform 0.3s ease;
     }
 
@@ -199,7 +198,7 @@
       body { background: white !important; color: black !important; padding-bottom: 0 !important; }
       .no-print, .app-header, .bottom-nav, .btn, .nav-btn { display: none !important; }
       .custom-card, .sentence-card { border: 1px solid #ccc !important; break-inside: avoid; box-shadow: none !important; }
-      .sentence-img-container { height: 200px !important; max-width: 100% !important; }
+      .sentence-img-container { height: 220px !important; max-width: 100% !important; }
     }
   </style>
 </head>
@@ -278,8 +277,8 @@
     <section id="view-home" class="app-view d-none">
       <div class="custom-card p-4 p-md-5 mb-4 text-center bg-gradient position-relative overflow-hidden" style="background: linear-gradient(135deg, var(--light-blue), var(--pastel-green));">
         <div class="mb-3 fs-1">🧩✨</div>
-        <h1 class="fw-bold mb-2 text-primary">Penjana Cerita Sosial AI PANTAS</h1>
-        <p class="text-secondary fs-6 mb-4">Membantu kanak-kanak Autism (ASD) memahami situasi sosial, emosi, dan perubahan rutin dengan gambar ilustrasi AI khas.</p>
+        <h1 class="fw-bold mb-2 text-primary">Penjana Cerita Sosial Gambar Sebenar</h1>
+        <p class="text-secondary fs-6 mb-4">Membantu kanak-kanak Autism (ASD) memahami situasi sosial, emosi, dan perubahan rutin dengan gambar ilustrasi & foto sebenar.</p>
         <button onclick="showView('generate')" class="btn btn-primary btn-lg rounded-pill px-4 py-3 fw-bold shadow">
           <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Cipta Cerita Sekarang
         </button>
@@ -288,9 +287,9 @@
       <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
           <div class="custom-card p-3 text-center">
-            <i class="fa-solid fa-robot fs-3 text-primary mb-2"></i>
-            <h6 class="fw-bold mb-0">Ilustrasi AI</h6>
-            <small class="text-muted">Gambar Otomatik</small>
+            <i class="fa-solid fa-image fs-3 text-primary mb-2"></i>
+            <h6 class="fw-bold mb-0">Gambar Sebenar</h6>
+            <small class="text-muted">Foto Visual Jelas</small>
           </div>
         </div>
         <div class="col-6 col-md-3">
@@ -449,7 +448,7 @@
             <!-- Submit Button -->
             <div class="col-12 mt-4 text-center">
               <button type="submit" id="btn-generate-submit" class="btn btn-primary btn-lg rounded-pill px-5 py-3 fw-bold shadow w-100">
-                ✨ Jana Cerita & Gambar AI
+                ✨ Jana Cerita & Gambar Sebenar
               </button>
             </div>
 
@@ -508,7 +507,7 @@
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-3 no-print">
-          <div class="text-muted small"><i class="fa-solid fa-info-circle me-1"></i>Guna ⬆️ ⬇️ untuk ubah susunan ayat, atau ✏️ untuk sunting teks.</div>
+          <div class="text-muted small"><i class="fa-solid fa-info-circle me-1"></i>Guna ⬆️ ⬇️ untuk ubah susunan ayat, 📷 untuk ganti gambar sebenar.</div>
           <button class="btn btn-outline-primary btn-sm rounded-pill font-monospace" onclick="addNewSentence()">
             <i class="fa-solid fa-plus me-1"></i>Tambah Ayat Baharu
           </button>
@@ -917,13 +916,13 @@
       window.scrollTo(0, 0);
     }
 
-    // 4. GENERATE AI SOCIAL STORY ENGINE
+    // 4. GENERATE REAL-PHOTO SOCIAL STORY ENGINE
     function handleGenerateStory(e) {
       e.preventDefault();
 
       const nama = document.getElementById('input-nama').value.trim() || 'Ali';
       const umur = document.getElementById('input-umur').value;
-      const bahasa = 'BM'; // Bahasa Melayu sahaja
+      const bahasa = 'BM';
       const tahap = document.getElementById('input-tahap').value;
       
       let situasi = document.getElementById('input-situasi-select').value;
@@ -936,13 +935,13 @@
 
       const submitBtn = document.getElementById('btn-generate-submit');
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menjana Gambar AI & Cerita...';
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menjana Gambar Sebenar & Cerita...';
 
       setTimeout(() => {
         const storyData = generateSocialStoryByLanguageLevel({ nama, umur, bahasa, tahap, situasi, emosi, nilai });
         renderStoryResult(storyData);
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '✨ Jana Cerita & Gambar AI';
+        submitBtn.innerHTML = '✨ Jana Cerita & Gambar Sebenar';
       }, 1000);
     }
 
@@ -955,15 +954,36 @@
       }
     }
 
-    // GENERATE AI IMAGE URL (Pollinations AI Engine)
-    function generateAIImageUrl(sentenceText, situasi) {
-      const promptText = `cute 2d children storybook illustration, soft colors, autism friendly vector art, ${situasi}, ${sentenceText}`;
-      const encodedPrompt = encodeURIComponent(promptText);
-      const randomSeed = Math.floor(Math.random() * 10000);
-      return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=384&nologo=true&seed=${randomSeed}`;
+    // MAP SITUASI KE KATA KUNCI BAHASA INGGERIS UNTUK API FOTO SEBENAR (Unsplash Engine)
+    function getEnglishKeywordForSituation(situasiText) {
+      const lower = situasiText.toLowerCase();
+      if (lower.includes('sekolah')) return 'school,student,classroom';
+      if (lower.includes('klinik') || lower.includes('hospital')) return 'doctor,clinic,hospital';
+      if (lower.includes('potong rambut')) return 'haircut,barbershop';
+      if (lower.includes('pasar raya') || lower.includes('membeli-belah')) return 'supermarket,shopping';
+      if (lower.includes('taman')) return 'park,playground,kids';
+      if (lower.includes('restoran')) return 'restaurant,dining,food';
+      if (lower.includes('kapal terbang')) return 'airplane,airport';
+      if (lower.includes('bas')) return 'bus,passenger';
+      if (lower.includes('zoo')) return 'zoo,animals';
+      if (lower.includes('berenang')) return 'swimming,pool';
+      if (lower.includes('mandi')) return 'bathroom,shower';
+      if (lower.includes('gigi')) return 'toothbrush,brushing-teeth';
+      if (lower.includes('tidur')) return 'sleeping,bed';
+      if (lower.includes('masjid')) return 'mosque,praying';
+      if (lower.includes('kasut')) return 'shoes,putting-on-shoes';
+      if (lower.includes('mainan') || lower.includes('bermain')) return 'kids-playing,toys';
+      return 'children,daily-life,family';
     }
 
-    // STORY GENERATOR BASED ON CHILD'S LANGUAGE LEVEL (KHUSUS BAHASA MELAYU)
+    // GENERATE REAL PHOTO IMAGE URL (Unsplash Source Engine)
+    function generateRealPhotoUrl(sentenceText, situasi, index) {
+      const keyword = getEnglishKeywordForSituation(situasi);
+      const sig = Math.floor(Math.random() * 1000) + index;
+      return `https://source.unsplash.com/600x400/?${encodeURIComponent(keyword)}&sig=${sig}`;
+    }
+
+    // STORY GENERATOR BASED ON CHILD'S LANGUAGE LEVEL
     function generateSocialStoryByLanguageLevel(params) {
       const { nama, umur, bahasa, tahap, situasi, emosi, nilai } = params;
 
@@ -1012,7 +1032,7 @@
       const sentenceItems = sentences.map((st, idx) => ({
         id: 's_' + Date.now() + '_' + idx,
         text: st,
-        img: generateAIImageUrl(st, situasi)
+        img: generateRealPhotoUrl(st, situasi, idx)
       }));
 
       return {
@@ -1035,7 +1055,7 @@
     function getBehaviorTips(nama, situasi, nilai, tahap) {
       const childName = nama || 'anak';
       return {
-        intro: `Sediakan persekitaran yang tenang dan bebas daripada gangguan gajet atau bunyi bising. Bacakan cerita ini bersama ${childName} semasa beliau dalam keadaan selesa dan tenang. Elakkan memaksa atau membaca cerita ini ketika anak sedang gelisah atau mengamuk. Duduk di sebelah ${childName} dan tunjukkan setiap gambar ilustrasi satu demi satu secara perlahan.`
+        intro: `Sediakan persekitaran yang tenang dan bebas daripada gangguan gajet atau bunyi bising. Bacakan cerita ini bersama ${childName} semasa beliau dalam keadaan selesa dan tenang. Elakkan memaksa atau membaca cerita ini ketika anak sedang gelisah atau mengamuk. Duduk di sebelah ${childName} dan tunjukkan setiap gambar ilustrasi/foto sebenar satu demi satu secara perlahan.`
       };
     }
 
@@ -1060,10 +1080,13 @@
         const cardHtml = `
           <div class="sentence-card">
             <div class="sentence-img-container">
-              <img src="${s.img}" class="sentence-img" id="img_elem_${idx}" onerror="this.src='https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${idx}'">
-              <div class="position-absolute top-0 end-0 p-2 no-print">
+              <img src="${s.img}" class="sentence-img" id="img_elem_${idx}" onerror="handleImageError(this, ${idx})">
+              <div class="position-absolute top-0 end-0 p-2 no-print d-flex gap-1">
                 <input type="file" id="file_input_${idx}" class="d-none" accept="image/*" onchange="uploadCustomImage(event, ${idx})">
-                <button class="btn btn-sm btn-light rounded-circle shadow" onclick="document.getElementById('file_input_${idx}').click()" title="Ganti Gambar">
+                <button class="btn btn-sm btn-light rounded-circle shadow" onclick="promptCustomImageUrl(${idx})" title="Guna URL Gambar Sebenar">
+                  <i class="fa-solid fa-link"></i>
+                </button>
+                <button class="btn btn-sm btn-light rounded-circle shadow" onclick="document.getElementById('file_input_${idx}').click()" title="Muat Naik Gambar Foto Sendiri">
                   <i class="fa-solid fa-camera"></i>
                 </button>
               </div>
@@ -1124,7 +1147,30 @@
       showView('story-result');
     }
 
-    // FUNGSI SUNNTING TAJUK CERITA
+    // PENGENDALIAN RALAT MUAT GAMBAR (FALLBACK FOTO RELEVAN)
+    function handleImageError(imgElem, index) {
+      const fallbackPhotos = [
+        'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=600&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&auto=format&fit=crop'
+      ];
+      imgElem.onerror = null;
+      imgElem.src = fallbackPhotos[index % fallbackPhotos.length];
+    }
+
+    // MASUKKAN URL GAMBAR SEBENAR KUSTOM
+    function promptCustomImageUrl(index) {
+      const url = prompt("Masukkan pautan URL gambar foto sebenar:");
+      if (url && url.trim()) {
+        const cleanUrl = url.trim();
+        currentActiveStory.sentences[index].img = cleanUrl;
+        document.getElementById(`img_elem_${index}`).src = cleanUrl;
+        saveStoryToStorage(currentActiveStory);
+      }
+    }
+
+    // FUNGSI SUNTING TAJUK CERITA
     function editStoryTitlePrompt() {
       if (!currentActiveStory) return;
       const currentTitle = currentActiveStory.title || `Cerita Sosial ${currentActiveStory.nama}`;
@@ -1188,7 +1234,7 @@
         const newSentence = {
           id: 's_' + Date.now() + '_' + currentActiveStory.sentences.length,
           text: cleanText,
-          img: generateAIImageUrl(cleanText, currentActiveStory.situasi)
+          img: generateRealPhotoUrl(cleanText, currentActiveStory.situasi, currentActiveStory.sentences.length)
         };
 
         currentActiveStory.sentences.push(newSentence);
