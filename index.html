@@ -345,12 +345,10 @@
               </select>
             </div>
 
-            <!-- Bahasa (Dikunci ke Bahasa Melayu sahaja) -->
+            <!-- Bahasa (Khusus Bahasa Melayu Sahaja) -->
             <div class="col-md-6">
               <label class="form-label fw-bold">Bahasa Cerita</label>
-              <select id="input-bahasa" class="form-select rounded-3 p-2.5" disabled>
-                <option value="BM" selected>Bahasa Melayu</option>
-              </select>
+              <input type="text" class="form-control rounded-3 p-2.5 bg-light" value="Bahasa Melayu" readonly>
             </div>
 
             <!-- Tahap Bahasa -->
@@ -469,7 +467,6 @@
             <button onclick="toggleFavoriteCurrentStory()" id="btn-fav-story" class="btn btn-outline-danger btn-sm rounded-pill">
               <i class="fa-regular fa-heart me-1"></i> Simpan Kegemaran
             </button>
-            <!-- BUTANG DIPENDEKKAN KEPADA "Bacakan Cerita" -->
             <button onclick="readFullStoryTTS()" class="btn btn-warning btn-sm rounded-pill fw-bold">
               🔊 Bacakan Cerita
             </button>
@@ -948,7 +945,7 @@
       return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=384&nologo=true&seed=${randomSeed}`;
     }
 
-    // STORY GENERATOR BASED ON CHILD'S LANGUAGE LEVEL (BM ONLY)
+    // STORY GENERATOR BASED ON CHILD'S LANGUAGE LEVEL (KHUSUS BAHASA MELAYU)
     function generateSocialStoryByLanguageLevel(params) {
       const { nama, umur, bahasa, tahap, situasi, emosi, nilai } = params;
 
@@ -1005,7 +1002,7 @@
         createdAt: new Date().toISOString().split('T')[0],
         nama,
         umur,
-        bahasa,
+        bahasa: 'BM',
         tahap,
         situasi,
         emosi,
