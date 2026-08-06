@@ -163,8 +163,9 @@
     .sentence-img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
       object-position: center;
+      padding: 4px;
       transition: transform 0.3s ease;
     }
 
@@ -268,7 +269,7 @@
       <div class="custom-card p-4 p-md-5 mb-4 text-center bg-gradient position-relative overflow-hidden" style="background: linear-gradient(135deg, var(--light-blue), var(--pastel-green));">
         <div class="mb-3 fs-1">🧩✨</div>
         <h1 class="fw-bold mb-2 text-primary">Penjana Cerita Sosial AI PANTAS</h1>
-        <p class="text-secondary fs-6 mb-4">Membantu kanak-kanak Autism (ASD) memahami situasi sosial, emosi, dan perubahan rutin dengan gambar realistik AI khas.</p>
+        <p class="text-secondary fs-6 mb-4">Membantu kanak-kanak Autism (ASD) memahami situasi sosial, emosi, dan perubahan rutin dengan gambar ilustrasi AI khas.</p>
         <button onclick="showView('generate')" class="btn btn-primary btn-lg rounded-pill px-4 py-3 fw-bold shadow">
           <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Cipta Cerita Sekarang
         </button>
@@ -277,9 +278,9 @@
       <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
           <div class="custom-card p-3 text-center">
-            <i class="fa-solid fa-camera fs-3 text-primary mb-2"></i>
-            <h6 class="fw-bold mb-0">Gambar Realistik</h6>
-            <small class="text-muted">Gaya Foto AI</small>
+            <i class="fa-solid fa-robot fs-3 text-primary mb-2"></i>
+            <h6 class="fw-bold mb-0">Ilustrasi AI</h6>
+            <small class="text-muted">Gambar Otomatik</small>
           </div>
         </div>
         <div class="col-6 col-md-3">
@@ -344,7 +345,7 @@
               </select>
             </div>
 
-            <!-- Bahasa (Dikunci ke Bahasa Melayu) -->
+            <!-- Bahasa (Dikunci ke Bahasa Melayu sahaja) -->
             <div class="col-md-6">
               <label class="form-label fw-bold">Bahasa Cerita</label>
               <select id="input-bahasa" class="form-select rounded-3 p-2.5" disabled>
@@ -468,6 +469,7 @@
             <button onclick="toggleFavoriteCurrentStory()" id="btn-fav-story" class="btn btn-outline-danger btn-sm rounded-pill">
               <i class="fa-regular fa-heart me-1"></i> Simpan Kegemaran
             </button>
+            <!-- BUTANG DIPENDEKKAN KEPADA "Bacakan Cerita" -->
             <button onclick="readFullStoryTTS()" class="btn btn-warning btn-sm rounded-pill fw-bold">
               🔊 Bacakan Cerita
             </button>
@@ -906,7 +908,7 @@
 
       const nama = document.getElementById('input-nama').value.trim() || 'Ali';
       const umur = document.getElementById('input-umur').value;
-      const bahasa = 'BM'; 
+      const bahasa = 'BM'; // Bahasa dikunci ke BM sahaja
       const tahap = document.getElementById('input-tahap').value;
       
       let situasi = document.getElementById('input-situasi-select').value;
@@ -919,7 +921,7 @@
 
       const submitBtn = document.getElementById('btn-generate-submit');
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menjana Gambar AI Realistik & Cerita...';
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menjana Gambar AI & Cerita...';
 
       setTimeout(() => {
         const storyData = generateSocialStoryByLanguageLevel({ nama, umur, bahasa, tahap, situasi, emosi, nilai });
@@ -938,16 +940,15 @@
       }
     }
 
-    // GENERATE REALISTIC AI IMAGE URL (Pollinations AI Engine)
+    // GENERATE AI IMAGE URL (Pollinations AI Engine)
     function generateAIImageUrl(sentenceText, situasi) {
-      // Menggunakan katakunci "realistic photo style" & "high quality stock photo" untuk imej realistik
-      const promptText = `realistic photo style, natural lighting, high quality stock photo, autism friendly, child in ${situasi}, ${sentenceText}`;
+      const promptText = `cute 2d children storybook illustration, soft colors, autism friendly vector art, ${situasi}, ${sentenceText}`;
       const encodedPrompt = encodeURIComponent(promptText);
       const randomSeed = Math.floor(Math.random() * 10000);
       return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=384&nologo=true&seed=${randomSeed}`;
     }
 
-    // STORY GENERATOR BASED ON CHILD'S LANGUAGE LEVEL
+    // STORY GENERATOR BASED ON CHILD'S LANGUAGE LEVEL (BM ONLY)
     function generateSocialStoryByLanguageLevel(params) {
       const { nama, umur, bahasa, tahap, situasi, emosi, nilai } = params;
 
@@ -1018,7 +1019,7 @@
     function getBehaviorTips(nama, situasi, nilai, tahap) {
       const childName = nama || 'anak';
       return {
-        intro: `Sediakan persekitaran yang tenang dan bebas daripada gangguan gajet atau bunyi bising. Bacakan cerita ini bersama ${childName} semasa beliau dalam keadaan selesa dan tenang. Elakkan memaksa atau membaca cerita ini ketika anak sedang gelisah atau mengamuk. Duduk di sebelah ${childName} dan tunjukkan setiap gambar satu demi satu secara perlahan.`
+        intro: `Sediakan persekitaran yang tenang dan bebas daripada gangguan gajet atau bunyi bising. Bacakan cerita ini bersama ${childName} semasa beliau dalam keadaan selesa dan tenang. Elakkan memaksa atau membaca cerita ini ketika anak sedang gelisah atau mengamuk. Duduk di sebelah ${childName} dan tunjukkan setiap gambar ilustrasi satu demi satu secara perlahan.`
       };
     }
 
@@ -1040,7 +1041,7 @@
         const cardHtml = `
           <div class="sentence-card">
             <div class="sentence-img-container">
-              <img src="${s.img}" class="sentence-img" id="img_elem_${idx}" onerror="this.src='https://images.unsplash.com/photo-1544717305-2782549b5136?w=500&auto=format&fit=crop'">
+              <img src="${s.img}" class="sentence-img" id="img_elem_${idx}" onerror="this.src='https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${idx}'">
               <div class="position-absolute top-0 end-0 p-2 no-print">
                 <input type="file" id="file_input_${idx}" class="d-none" accept="image/*" onchange="uploadCustomImage(event, ${idx})">
                 <button class="btn btn-sm btn-light rounded-circle shadow" onclick="document.getElementById('file_input_${idx}').click()" title="Ganti Gambar">
