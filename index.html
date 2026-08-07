@@ -354,7 +354,7 @@
               </select>
             </div>
 
-            <!-- Bahasa (Khusus Bahasa Melayu Sahaja) -->
+            <!-- Bahasa -->
             <div class="col-md-6">
               <label class="form-label fw-bold">Bahasa Cerita</label>
               <input type="text" class="form-control rounded-3 p-2.5 bg-light" value="Bahasa Melayu" readonly>
@@ -468,7 +468,6 @@
           </button>
           
           <div class="d-flex flex-wrap gap-2">
-            <!-- BUTANG SIMPAN CERITA BAHARU -->
             <button onclick="saveCurrentStoryExplicitly()" id="btn-save-story" class="btn btn-success btn-sm rounded-pill fw-bold">
               <i class="fa-solid fa-floppy-disk me-1"></i> Simpan Cerita
             </button>
@@ -495,7 +494,6 @@
         <div class="custom-card p-4 mb-4 text-center border-start border-5 border-primary">
           <span class="badge bg-primary rounded-pill mb-2" id="res-badge-situasi">Situasi</span>
           
-          <!-- TAJUK CERITA BOLEH DISUNTING -->
           <div class="d-flex justify-content-center align-items-center gap-2 mb-1">
             <h2 class="fw-bold mb-0 editable-title" id="res-story-title" onclick="editStoryTitlePrompt()" title="Tekan untuk sunting tajuk">Cerita Sosial Ali</h2>
             <button class="btn btn-sm btn-outline-primary rounded-circle no-print" onclick="editStoryTitlePrompt()" title="Sunting Tajuk Cerita">
@@ -682,12 +680,11 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      loadLocalStories();
-
       const savedUser = localStorage.getItem('user_session');
       if (savedUser) {
         try {
           currentUser = JSON.parse(savedUser);
+          loadLocalStories();
           updateAuthUI();
           showView('home');
         } catch(e) {
@@ -699,17 +696,26 @@
         if (user) {
           currentUser = { uid: user.uid, email: user.email, isLocal: false };
           localStorage.setItem('user_session', JSON.stringify(currentUser));
+          loadLocalStories();
           updateAuthUI();
           syncStoriesFromFirebase();
           showView('home');
         } else {
           if (!currentUser) {
+            myStories = [];
+            currentActiveStory = null;
             updateAuthUI();
             showView('login');
           }
         }
       });
     });
+
+    // Helper Fungsi untuk Dapatkan Kunci Storan Tempatan yang Unik Mengikut User UID
+    function getStorageKey() {
+      if (!currentUser) return 'my_social_stories_guest';
+      return `my_social_stories_${currentUser.uid}`;
+    }
 
     // 2. AUTHENTICATION LOGIC
     function switchAuthTab(mode) {
@@ -784,7 +790,9 @@
           .then((userCredential) => {
             currentUser = { uid: userCredential.user.uid, email: userCredential.user.email, isLocal: false };
             localStorage.setItem('user_session', JSON.stringify(currentUser));
+            loadLocalStories();
             updateAuthUI();
+            syncStoriesFromFirebase();
             showView('home');
           })
           .catch(err => {
@@ -806,6 +814,7 @@
           .then((userCredential) => {
             currentUser = { uid: userCredential.user.uid, email: userCredential.user.email, isLocal: false };
             localStorage.setItem('user_session', JSON.stringify(currentUser));
+            loadLocalStories();
             successDiv.classList.remove('d-none');
             successDiv.innerText = 'Akaun anda berjaya dicipta!';
             setTimeout(() => {
@@ -846,12 +855,14 @@
     }
 
     function loginLocally(email) {
+      const cleanEmail = email || 'pengguna@socialstory.local';
       currentUser = {
-        uid: 'user_' + Date.now(),
-        email: email || 'pengguna@socialstory.local',
+        uid: 'user_local_' + btoa(cleanEmail).replace(/=/g, ''),
+        email: cleanEmail,
         isLocal: true
       };
       localStorage.setItem('user_session', JSON.stringify(currentUser));
+      loadLocalStories();
       updateAuthUI();
       showView('home');
     }
@@ -860,6 +871,8 @@
       if (confirm("Adakah anda pasti mahu log keluar?")) {
         localStorage.removeItem('user_session');
         currentUser = null;
+        myStories = [];
+        currentActiveStory = null;
         auth.signOut().finally(() => {
           updateAuthUI();
           showView('login');
@@ -1367,8 +1380,10 @@
       document.getElementById('token-congrats').classList.add('d-none');
     }
 
-    // 9. STORAGE & CLOUD SYNC
+    // 9. STORAGE & CLOUD SYNC TERASING MENGIKUT AKAUN
     function saveStoryToStorage(story) {
+      if (!currentUser) return;
+
       const existingIdx = myStories.findIndex(s => s.id === story.id);
       if (existingIdx >= 0) {
         myStories[existingIdx] = story;
@@ -1376,9 +1391,9 @@
         myStories.unshift(story);
       }
 
-      localStorage.setItem('my_social_stories', JSON.stringify(myStories));
+      localStorage.setItem(getStorageKey(), JSON.stringify(myStories));
 
-      if (currentUser && !currentUser.isLocal) {
+      if (!currentUser.isLocal) {
         try {
           db.ref(`users/${currentUser.uid}/stories/${story.id}`).set(story);
         } catch(e) {
@@ -1388,10 +1403,14 @@
     }
 
     function loadLocalStories() {
-      const data = localStorage.getItem('my_social_stories');
+      myStories = [];
+      const data = localStorage.getItem(getStorageKey());
       if (data) {
         try { myStories = JSON.parse(data); } catch(e) { myStories = []; }
       }
+      renderHomeRecentStories();
+      renderMyStories();
+      renderFavourites();
     }
 
     function syncStoriesFromFirebase() {
@@ -1401,11 +1420,14 @@
             const val = snapshot.val();
             if (val) {
               myStories = Object.values(val);
-              localStorage.setItem('my_social_stories', JSON.stringify(myStories));
-              renderHomeRecentStories();
-              renderMyStories();
-              renderFavourites();
+              localStorage.setItem(getStorageKey(), JSON.stringify(myStories));
+            } else {
+              myStories = [];
+              localStorage.setItem(getStorageKey(), JSON.stringify([]));
             }
+            renderHomeRecentStories();
+            renderMyStories();
+            renderFavourites();
           });
         } catch(e) {
           console.warn("Firebase sync warning:", e);
@@ -1507,7 +1529,7 @@
     function deleteStoryFromStorage(storyId) {
       if (confirm('Adakah anda pasti mahu memadam cerita ini?')) {
         myStories = myStories.filter(s => s.id !== storyId);
-        localStorage.setItem('my_social_stories', JSON.stringify(myStories));
+        localStorage.setItem(getStorageKey(), JSON.stringify(myStories));
 
         if (currentUser && !currentUser.isLocal) {
           try {
